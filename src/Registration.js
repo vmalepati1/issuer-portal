@@ -16,16 +16,25 @@ const Registration = () => {
         })
     }
 
-
     return (
-        <div className='Registration'>
-            <h1>Registration</h1>
-            <form id='email' onSubmit={handleSubmit(onSubmit)}>
-                <input type='email' name='user_email' {...register('email')} placeholder='Email' />
-                <br/>
-                <input type='submit' value='Send' />
-            </form>
-        </div>
+        <section className="wrapper">
+            <div className="content">
+                <header>
+                    <h1>Subscribe Us</h1>
+                </header>
+                <section>
+                    <p>
+                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                    </p>
+                </section>
+                <footer>
+                    <form id='email' onSubmit={handleSubmit(onSubmit)}>
+                        <input type='email' name='user_email' {...register('email')} placeholder='Email' />
+                        <button class="button" type='submit' value='Send'>Let's go</button>
+                    </form>
+                </footer>
+            </div>
+        </section>
     );
 }
 export default Registration;
