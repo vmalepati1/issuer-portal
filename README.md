@@ -114,3 +114,10 @@ Broker search
 - https://pypdf2.readthedocs.io/en/latest/user/forms.html#filling-out-forms
 - https://pypi.org/project/fillpdf/
 - https://www.securexfilings.com/wp-content/uploads/2013/04/sched13d.pdf
+
+## Affiliate Voting
+- implement the transfer server and credentials updates via lambda calls with the actual pii easily dispersed in dynamo
+- For counting affiliate votes, we can also do indefinite returnable CBs from AFF*affiliate.holdings to AFFs (which net to zero in affiliate.holdings), and the issuer could easily manage changes on that side themselves (to/from brokers with auto-rep letters) for Rule 144/Section 10 reporting on their side themselves (prevents us from needing their CCC)
+- (parallel to scanning for standard avaliable to claim restricted stock which is legally granted and votable) (edited) 
+- (but still have automatic purchase statement/notifications for insider buys)
+- (where you have firm affiliations internal as a secondary dynamo index for balance check sweeps and pings at time of purchase or transfer gift per rolling week to check for misses into AFF CBs)
