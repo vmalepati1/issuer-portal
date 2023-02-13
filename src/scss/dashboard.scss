@@ -20,26 +20,26 @@
 @import "../../node_modules/bootstrap/scss/functions";
 
 // Change variables here
-@import "volt/variables";
+@import "dashboard/variables";
 
 // Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 // Vendor
-@import "volt/vendor";
+@import "dashboard/vendor";
 
 // volt mixins & functions
-@import "volt/mixins";
-@import "volt/functions";
+@import "dashboard/mixins";
+@import "dashboard/functions";
 
 // Utilities
-@import "volt/reboot";
-@import "volt/utilities";
+@import "dashboard/reboot";
+@import "dashboard/utilities";
 
 // Layout
-@import "volt/layout";
+@import "dashboard/layout";
 
 // Components
-@import "volt/components";
+@import "dashboard/components";
 
 // write your custom styles here!

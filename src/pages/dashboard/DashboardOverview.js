@@ -46,7 +46,7 @@ export default () => {
           <SalesValueWidget
             title="Sales Value"
             value="10,567"
-            percentage={10.57}
+            percentage={-10.57}
           />
         </Col>
         <Col xs={12} className="mb-4 d-sm-none">

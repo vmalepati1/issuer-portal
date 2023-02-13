@@ -1,7 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, 
+         faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus,
+         faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { faAngular, faBootstrap, faReact, faVuejs } from "@fortawesome/free-brands-svg-icons";
 import { Col, Row, Card, Image, Button, ListGroup, ProgressBar } from '@themesberg/react-bootstrap';
 import { CircleChart, BarChart, SalesValueChart, SalesValueChartphone } from "./Charts";
@@ -394,6 +396,115 @@ export const AcquisitionWidget = () => {
               <h4 className="mb-0">9,567</h4>
             </div>
           </div>
+        </div>
+      </Card.Body>
+    </Card>
+  );
+};
+
+// https://stackoverflow.com/questions/44382317/how-can-we-display-backend-data-in-react-js
+export const CapitalBreakdownWidget = () => {
+  const [companyName, setCompanyName] = useState("Example Company");
+  const [className, setClassName] = useState("A");
+  const [parValue, setParValue] = useState("$0.0001");
+
+  return (
+    <Card border="light" className="shadow-sm">
+      <Card.Body>
+        <h4>{companyName} Stock</h4>
+        <h5>Class {className}, {parValue} par </h5>
+        <div className="d-block">
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">384,290</h4>
+              <label className="mb-0">shares outstanding</label>
+            </div>
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">333,179.43</h4>
+              <label className="mb-0">shares at DTC</label>
+            </div>
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">25,555.285</h4>
+              <label className="mb-0">treasury shares</label>
+            </div>
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">25,555.285</h4>
+              <label className="mb-0">restricted shares</label>
+            </div>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">18,600</h4>
+              <label className="mb-0">reserved shares</label>
+            </div>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="d-block">
+              <label className="mb-0">18,600 in employee plan pool</label>
+            </div>
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="d-block">
+              <label className="mb-0">600 in private placement pool</label>
+            </div>
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
+          <div className="d-flex align-items-center pt-3 me-5">
+            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
+              <FontAwesomeIcon icon={faChartLine} />
+            </div>
+            <div className="d-block">
+              <h4 className="mb-0">592,555</h4>
+              <label className="mb-0">authorized shares</label>
+            </div>
+
+            <Card.Link href="#top" className="text-primary fw-bold">
+              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+            </Card.Link>
+          </div>
+
         </div>
       </Card.Body>
     </Card>

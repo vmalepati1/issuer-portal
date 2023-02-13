@@ -17,6 +17,8 @@ import Lock from "./examples/Lock";
 import NotFoundPage from "./examples/NotFound";
 import ServerError from "./examples/ServerError";
 
+import Dashboard from './Dashboard';
+
 // documentation pages
 import DocsOverview from "./documentation/DocsOverview";
 import DocsDownload from "./documentation/DocsDownload";
@@ -115,6 +117,8 @@ export default () => (
     <RouteWithSidebar exact path={Routes.Transactions.path} component={Transactions} />
     <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} />
     <RouteWithSidebar exact path={Routes.BootstrapTables.path} component={BootstrapTables} />
+
+    <RouteWithSidebar exact path={Routes.Dashboard.path} component={Dashboard} />
 
     {/* components */}
     <RouteWithSidebar exact path={Routes.Accordions.path} component={Accordion} />
