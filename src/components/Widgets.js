@@ -411,20 +411,20 @@ export const CapitalBreakdownWidget = () => {
   return (
     <Card border="light" className="shadow-sm">
       <Card.Body>
-        <h4>{companyName} Stock</h4>
-        <h5>Class {className}, {parValue} par </h5>
-        <div className="d-block">
-          <div className="d-flex align-items-center pt-3 me-5">
+        <h4 className="center-block text-center">{companyName} Stock</h4>
+        <h5 className="center-block text-center">Class {className}, {parValue} par </h5>
+        <div className="d-block mx-30">
+          <div className="d-flex justify-content-between pt-3 me-5">
             <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
               <FontAwesomeIcon icon={faChartLine} />
             </div>
             <div className="d-block">
               <h4 className="mb-0">384,290</h4>
               <label className="mb-0">shares outstanding</label>
-            </div>
-            <Card.Link href="#top" className="text-primary fw-bold">
+              <Card.Link href="#top" className="text-primary fw-bold">
               <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
+              </Card.Link>
+            </div>
           </div>
 
           <div className="d-flex align-items-center pt-3 me-5">
