@@ -3,10 +3,12 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, 
          faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus,
-         faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+         faExternalLinkAlt, faLandmark, faBook, faShieldAlt, faEnvelopeOpenText,
+         faScroll } from '@fortawesome/free-solid-svg-icons';
 import { faAngular, faBootstrap, faReact, faVuejs } from "@fortawesome/free-brands-svg-icons";
 import { Col, Row, Card, Image, Button, ListGroup, ProgressBar } from '@themesberg/react-bootstrap';
 import { CircleChart, BarChart, SalesValueChart, SalesValueChartphone } from "./Charts";
+import { library } from '@fortawesome/fontawesome-svg-core';
 
 import Profile1 from "../assets/img/team/profile-picture-1.jpg";
 import ProfileCover from "../assets/img/profile-cover.jpg";
@@ -402,109 +404,110 @@ export const AcquisitionWidget = () => {
   );
 };
 
+const CapitalBreakdownStat = (props) => {
+  let link;
+
+  if (props.displayLink) {
+    link =
+      <Card.Link href="#top" className="text-quaternary fw-bold align-self-center text-center text-md-end">
+        <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+      </Card.Link>;
+  } else {
+    link =
+      <Card.Link href="#top" className="invisible text-quaternary fw-bold align-self-center text-center text-md-end">
+        <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+      </Card.Link>;
+  }
+
+  return (
+    <div className="d-flex w-75 fixed-stat">
+      <div className="d-inline-block align-self-center">
+        <FontAwesomeIcon icon={props.statIcon} size="lg"/>
+      </div>
+      <div className="d-block ms-auto">
+        <div className="d-flex flex-column align-items-end">
+          <h4 className="mb-0 text-right">{props.statNumber}</h4>
+          <label className="mb-0 d-block text-right">{props.statName}</label>
+        </div>
+      </div>
+      {link}
+    </div>
+  );
+};
+
 // https://stackoverflow.com/questions/44382317/how-can-we-display-backend-data-in-react-js
+// Functional component
 export const CapitalBreakdownWidget = () => {
   const [companyName, setCompanyName] = useState("Example Company");
   const [className, setClassName] = useState("A");
   const [parValue, setParValue] = useState("$0.0001");
 
   return (
-    <Card border="light" className="shadow-sm">
+    <Card border="light" className="shadow-sm text-white bg-primary">
       <Card.Body>
         <h4 className="center-block text-center">{companyName} Stock</h4>
         <h5 className="center-block text-center">Class {className}, {parValue} par </h5>
         <div className="d-flex align-items-center flex-column">
-          <div className="d-flex flex-grow-0 w-50">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
+
+          <CapitalBreakdownStat 
+            statIcon={faChartLine} 
+            statName={"shares outstanding"}
+            statNumber={"384,290"}
+            displayLink={true}
+          ></CapitalBreakdownStat>
+
+          <CapitalBreakdownStat 
+            statIcon={faLandmark} 
+            statName={"shares at DTC"}
+            statNumber={"333,179.43"}
+            displayLink={true}
+          ></CapitalBreakdownStat>
+
+          <CapitalBreakdownStat 
+            statIcon={faBook} 
+            statName={"treasury shares"}
+            statNumber={"25,555.285"}
+            displayLink={true}
+          ></CapitalBreakdownStat>
+
+<         CapitalBreakdownStat 
+            statIcon={faShieldAlt} 
+            statName={"restricted shares"}
+            statNumber={"25,555.285"}
+            displayLink={false}
+          ></CapitalBreakdownStat>
+
+<         CapitalBreakdownStat 
+            statIcon={faEnvelopeOpenText} 
+            statName={"reserved shares"}
+            statNumber={"18,600"}
+            displayLink={false}
+          ></CapitalBreakdownStat>
+
+          <div className="d-flex w-75">
             <div className="d-block ms-auto">
-              <h4 className="mb-0">384,290</h4>
-              <label className="mb-0">shares outstanding</label>
-            </div>
-            <Card.Link href="#top" className="text-primary fw-bold align-self-center">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
-
-          <div className="d-flex flex-grow-0 w-50">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
-            <div className="d-block ms-auto">
-              <h4 className="mb-0">333,179.43</h4>
-              <label className="mb-0">shares at DTC</label>
-            </div>
-            <Card.Link href="#top" className="text-primary fw-bold align-self-center">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
-
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
-            <div className="d-block">
-              <h4 className="mb-0">25,555.285</h4>
-              <label className="mb-0">treasury shares</label>
-            </div>
-            <Card.Link href="#top" className="text-primary fw-bold">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
-
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
-            <div className="d-block">
-              <h4 className="mb-0">25,555.285</h4>
-              <label className="mb-0">restricted shares</label>
-            </div>
-          </div>
-
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
-            <div className="d-block">
-              <h4 className="mb-0">18,600</h4>
-              <label className="mb-0">reserved shares</label>
-            </div>
-          </div>
-
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="d-block">
               <label className="mb-0">18,600 in employee plan pool</label>
             </div>
-            <Card.Link href="#top" className="text-primary fw-bold">
+            <Card.Link href="#top" className="text-quaternary fw-bold">
               <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
             </Card.Link>
           </div>
 
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="d-block">
+          <div className="d-flex w-75">
+            <div className="d-block ms-auto">
               <label className="mb-0">600 in private placement pool</label>
             </div>
-            <Card.Link href="#top" className="text-primary fw-bold">
+            <Card.Link href="#top" className="text-quaternary fw-bold">
               <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
             </Card.Link>
           </div>
 
-          <div className="d-flex align-items-center pt-3 me-5">
-            <div className="icon icon-shape icon-sm icon-shape-danger rounded me-3">
-              <FontAwesomeIcon icon={faChartLine} />
-            </div>
-            <div className="d-block">
-              <h4 className="mb-0">592,555</h4>
-              <label className="mb-0">authorized shares</label>
-            </div>
-
-            <Card.Link href="#top" className="text-primary fw-bold">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
-
+          <CapitalBreakdownStat 
+            statIcon={faScroll} 
+            statName={"authorized shares"}
+            statNumber={"592,555"}
+            displayLink={true}
+          ></CapitalBreakdownStat>
         </div>
       </Card.Body>
     </Card>
