@@ -15,6 +15,7 @@ import ProfileCover from "../assets/img/profile-cover.jpg";
 
 import teamMembers from "../data/teamMembers";
 
+import { US } from 'country-flag-icons/react/3x2'
 
 export const ProfileCardWidget = () => {
   return (
@@ -444,9 +445,12 @@ export const CapitalBreakdownWidget = () => {
 
   return (
     <Card border="light" className="shadow-sm text-white bg-primary">
-      <Card.Body>
+      <Card.Header>
         <h4 className="center-block text-center">{companyName} Stock</h4>
         <h5 className="center-block text-center">Class {className}, {parValue} par </h5>
+      </Card.Header>
+
+      <Card.Body>
         <div className="d-flex align-items-center flex-column">
 
           <CapitalBreakdownStat 
@@ -513,3 +517,38 @@ export const CapitalBreakdownWidget = () => {
     </Card>
   );
 };
+
+const HolderWidget = (props) => {
+  return (
+    <div className="d-flex w-90 fixed-stat">
+      <US title="United States" className="... flag align-self-end mb-1 ms-4"/>
+      <div className="d-block ms-auto">
+        <label className="mb-0 d-block text-right bold-name">Vanguard Trust</label>
+        <label className="mb-0 d-block text-right">3,290 shares</label>
+        <label className="mb-0 d-block text-right">(1.223%)</label>
+      </div>
+    </div>
+  );
+};
+
+export const TopRegisteredHoldersWidget = () => {
+  return (
+    <Card border="light" className="shadow-sm shadow-sm">
+      <Card.Header>
+        <h4 className="center-block text-center">Top Registered Holders</h4>
+      </Card.Header>
+
+      <Card.Body>
+        <Row>
+          <Col col="d-flex justify-content-center align-items-center">
+            <HolderWidget></HolderWidget>
+          </Col>
+
+          <Col col="d-flex justify-content-center align-items-center">
+          <HolderWidget></HolderWidget>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
+  );
+}
