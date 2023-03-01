@@ -541,57 +541,7 @@ export const TopRegisteredHoldersWidget = () => {
       </Card.Header>
 
       <Card.Body>
-        <Row className="mt-1 mb-1">
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-          </Col>
-
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-          </Col>
-        </Row>
-
-        <Row className="mt-1 mb-1">
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-          </Col>
-
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-          </Col>
-        </Row>
-
-        <Row className="mt-1 mb-1">
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-          </Col>
-
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-          </Col>
-        </Row>
-
-        <Row className="mt-1 mb-1">
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-          </Col>
-
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-          </Col>
-        </Row>
-
-        <Row className="mt-1 mb-1">
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-          </Col>
-
-          <Col col="d-flex justify-content-center align-items-center">
-            <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-          </Col>
-        </Row>
-
-        <div class="collapse multi-collapse" id="collapsedShareholders">
+        <div className="d-block">
           <Row className="mt-1 mb-1">
             <Col col="d-flex justify-content-center align-items-center">
               <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
@@ -601,11 +551,63 @@ export const TopRegisteredHoldersWidget = () => {
               <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
             </Col>
           </Row>
-        </div>
 
-        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedShareholders" aria-expanded="false" aria-controls="collapsedShareholders">
-          View All
-        </button>
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+            </Col>
+          </Row>
+
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+            </Col>
+          </Row>
+
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+            </Col>
+          </Row>
+
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+            </Col>
+          </Row>
+
+          <div className="collapse multi-collapse" id="collapsedShareholders">
+            <Row className="mt-1 mb-1">
+              <Col col="d-flex justify-content-center align-items-center">
+                <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+              </Col>
+
+              <Col col="d-flex justify-content-center align-items-center">
+                <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+              </Col>
+            </Row>
+          </div>
+
+          <button className="btn btn-secondary centered-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedShareholders" aria-expanded="false" aria-controls="collapsedShareholders">
+            View All
+          </button>
+        </div>
       </Card.Body>
     </Card>
   );

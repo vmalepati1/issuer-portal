@@ -3925,6 +3925,13 @@ data-urls@^1.0.0, data-urls@^1.1.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
+dcent-web-connector@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.npmjs.org/dcent-web-connector/-/dcent-web-connector-0.12.0.tgz"
+  integrity sha512-IoVLEouWPdM3hRzJfpukHQda7cCFeuUjVB/2SEQaamJS2L1vRKdnNqXG0CL0cNC7YnrwBn4y3XF694M4PHYB3w==
+  dependencies:
+    events "^3.0.0"
+
 debug@^2.2.0:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
