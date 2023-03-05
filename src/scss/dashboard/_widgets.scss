@@ -16,3 +16,22 @@
     width: 25%;
     margin: 0 auto;
 }
+
+.login-header {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+}
+
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.login-container {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
