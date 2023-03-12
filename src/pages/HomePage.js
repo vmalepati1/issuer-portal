@@ -4,6 +4,7 @@ import { Routes } from "../routes";
 
 import Login from './Login';
 import Dashboard from './Dashboard';
+import Investors from './Investors';
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -63,14 +64,15 @@ const RouteWithSidebar = ({ component: Component, navbarTitle: string, ...rest }
 export default () => {
   const [token, setToken] = useState();
 
-  if (!token) {
-    return <Login setToken={setToken}></Login>
-  }
+  // if (!token) {
+  //   return <Login setToken={setToken}></Login>
+  // }
 
   return (
     <Switch>
       <RouteWithLoader exact path={Routes.Login.path} component={Login}/>
       <RouteWithSidebar exact path={Routes.Dashboard.path} component={Dashboard} navbarTitle="Dashboard"/>
+      <RouteWithSidebar exact path={Routes.Investors.path} component={Investors} navbarTitle="Investors"/>
 
       <Redirect to={Routes.NotFound.path} />
     </Switch>

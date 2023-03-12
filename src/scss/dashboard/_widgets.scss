@@ -35,3 +35,21 @@
     justify-content: center;
     align-items: center;
 }
+
+.holder-header {
+    display: flex;
+}
+
+.left-search-bar, .center-holder-title, .right-download {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.left-search-bar > form {
+    margin-right: auto;
+}
+
+.right-download > button {
+    margin-left: auto;
+}

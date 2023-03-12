@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, 
          faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus,
          faExternalLinkAlt, faLandmark, faBook, faShieldAlt, faEnvelopeOpenText,
-         faScroll } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row, Card, Image, Button, ListGroup, ProgressBar } from '@themesberg/react-bootstrap';
+         faScroll, faDownload, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { Col, Row, Card, Image, Button, ListGroup, ProgressBar, Form, InputGroup } from '@themesberg/react-bootstrap';
 import { US, FR } from 'country-flag-icons/react/3x2';
 
 const CapitalBreakdownStat = (props) => {
@@ -211,5 +211,38 @@ export const TopRegisteredHoldersWidget = () => {
         </div>
       </Card.Body>
     </Card>
+  );
+}
+
+export const HolderListWidget = () => {
+  return (
+    <>
+      <Card border="light" className="shadow-sm shadow-sm">
+        <Card.Header>
+          <div class="d-flex holder-header">
+            <div className="d-flex align-items-center left-search-bar">
+              <Form class="form-inline">
+                <Form.Control type="text" placeholder="Name" />
+              </Form>
+            </div>
+
+            <div class="center-holder-title">
+              <h4 className="center-block text-center p-0 m-0">Class A Stockholders</h4>
+            </div>
+
+            <div class="right-download">
+              <button type="button" class="btn d-flex justify-content-end align-items-center">
+                <FontAwesomeIcon icon={faDownload} />
+              </button>
+            </div>
+
+          </div>
+        </Card.Header>
+
+        <Card.Body>
+
+        </Card.Body>
+      </Card>
+    </>
   );
 }
