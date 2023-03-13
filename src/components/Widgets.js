@@ -5,8 +5,8 @@ import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine,
          faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus,
          faExternalLinkAlt, faLandmark, faBook, faShieldAlt, faEnvelopeOpenText,
          faScroll, faDownload, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row, Card, Image, Button, ListGroup, ProgressBar, Form, InputGroup } from '@themesberg/react-bootstrap';
-import { US, FR } from 'country-flag-icons/react/3x2';
+import { Col, Row, Card, Image, Button, ListGroup, ProgressBar, Form, InputGroup, Pagination } from '@themesberg/react-bootstrap';
+import Flags from 'country-flag-icons/react/3x2';
 
 const CapitalBreakdownStat = (props) => {
   let link;
@@ -121,10 +121,13 @@ export const CapitalBreakdownWidget = () => {
   );
 };
 
+// https://stackoverflow.com/questions/65681881/react-dynamic-use-of-country-flag-icons-library
 const HolderWidget = (props) => {
+  const Flag = Flags[props.nationCode];
+
   return (
     <div className="d-flex w-90 fixed-stat">
-      <US title="United States" className="... flag align-self-end mb-1 ms-5"/>
+      <Flag title={props.nationCode} className="... flag align-self-end mb-2 ms-5"/>
       <div className="d-block ms-auto">
         <label className="mb-0 d-block text-right bold-name">{props.name}</label>
         <label className="mb-0 d-block text-right">{props.numShares} shares</label>
@@ -145,62 +148,62 @@ export const TopRegisteredHoldersWidget = () => {
         <div className="d-block">
           <Row className="mt-1 mb-1">
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="IN"></HolderWidget>
             </Col>
 
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
             </Col>
           </Row>
 
           <Row className="mt-1 mb-1">
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
             </Col>
 
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
             </Col>
           </Row>
 
           <Row className="mt-1 mb-1">
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
             </Col>
 
             <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
+            </Col>
+          </Row>
+
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
+            </Col>
+          </Row>
+
+          <Row className="mt-1 mb-1">
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
+            </Col>
+
+            <Col col="d-flex justify-content-center align-items-center">
+              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
             </Col>
           </Row>
 
           <div className="collapse multi-collapse" id="collapsedShareholders">
             <Row className="mt-1 mb-1">
               <Col col="d-flex justify-content-center align-items-center">
-                <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223"></HolderWidget>
+                <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
               </Col>
 
               <Col col="d-flex justify-content-center align-items-center">
-                <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012"></HolderWidget>
+                <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
               </Col>
             </Row>
           </div>
@@ -214,14 +217,73 @@ export const TopRegisteredHoldersWidget = () => {
   );
 }
 
-export const HolderListWidget = () => {
+const HolderDetailsWidget = (props) => {
+  const Flag = Flags[props.nationCode];
+
+  return (
+    <>
+      <div className="d-flex w-90 fixed-stat my-2">
+        <Flag title={props.nationCode} className="... flag align-self-center"/>
+        <h5 class="align-self-center m-0 p-0 ms-4">{props.holderName}</h5>
+        <div className="d-block ms-auto">
+          <Row className="text-right">
+            <Col>
+              <label>{props.quantityAndUnits}</label>
+              <label class="ms-3 bold-name">{props.percentOwned}</label>
+              <button type="button" class="btn px-1 py-0">
+                <FontAwesomeIcon icon={faExternalLinkAlt}/>
+              </button>
+            </Col>
+          </Row>
+
+          <Row className="text-right">
+            <label>{props.holderAddress}</label>
+          </Row>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export const HolderListWidget = (props) => {
+  const [activeItem, setActiveItem] = React.useState(2);
+
+  const totalPages = 5;
+  const size = "md";
+  const disablePrev = false;
+
+  const onPrevItem = () => {
+    const prevActiveItem = activeItem === 1 ? activeItem : activeItem - 1;
+    setActiveItem(prevActiveItem);
+  };
+
+  const onNextItem = (totalPages) => {
+    const nextActiveItem = activeItem === totalPages ? activeItem : activeItem + 1;
+    setActiveItem(nextActiveItem);
+  };
+
+  const items = [];
+  for (let number = 1; number <= totalPages; number++) {
+    const isItemActive = activeItem === number;
+
+    const handlePaginationChange = () => {
+      setActiveItem(number);
+    };
+
+    items.push(
+      <Pagination.Item active={isItemActive} key={number} onClick={handlePaginationChange}>
+        {number}
+      </Pagination.Item>
+    );
+  };
+
   return (
     <>
       <Card border="light" className="shadow-sm shadow-sm">
         <Card.Header>
           <div class="d-flex holder-header">
             <div className="d-flex align-items-center left-search-bar">
-              <Form class="form-inline">
+              <Form className="form-inline">
                 <Form.Control type="text" placeholder="Name" />
               </Form>
             </div>
@@ -240,7 +302,20 @@ export const HolderListWidget = () => {
         </Card.Header>
 
         <Card.Body>
-
+          <div className="d-block">
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            <Pagination size={size} className="mt-3 pagination justify-content-center">
+              <Pagination.Prev disabled={disablePrev} onClick={onPrevItem}>Previous</Pagination.Prev>
+              {items}
+              <Pagination.Next onClick={() => onNextItem(totalPages)}>Next</Pagination.Next>
+            </Pagination>
+          </div>
         </Card.Body>
       </Card>
     </>
