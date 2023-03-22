@@ -66,7 +66,7 @@ export const SalesValueChartphone = () => {
 };
 
 export const CircleChart = (props) => {
-  const { series = [], donutWidth = 20 } = props;
+  const { series = [], labels = [], donutWidth = 20 } = props;
   const sum = (a, b) => a + b;
 
   const options = {
@@ -75,9 +75,11 @@ export const CircleChart = (props) => {
     donutWidth,
     donut: true,
     donutSolid: true,
-    fullWidth: false,
+    fullWidth: true,
     showLabel: false,
-    labelInterpolationFnc: value => `${Math.round(value / series.reduce(sum) * 100)}%`,
+    labelInterpolationFnc: function(value) {
+      return value
+    }
   }
 
   const plugins = [
@@ -85,7 +87,7 @@ export const CircleChart = (props) => {
   ]
 
   return (
-    <Chartist data={{ series }} options={{...options, plugins}} type="Pie" className="ct-golden-section" />
+    <Chartist data={{ labels: labels, series: series }} options={{...options, plugins}} type="Pie" className="ct-golden-section" />
   );
 };
 
