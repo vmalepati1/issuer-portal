@@ -5,16 +5,30 @@ import { HolderListWidget, RegisteredTrendsWidget } from '../components/Widgets'
 
 export default function Investors() {
     return (
-        <Row>
-            <Col>
-                <HolderListWidget>
-                </HolderListWidget>
-            </Col>
+        <>
+            <Row className="mb-3">
+                <Col>
+                    <HolderListWidget>
+                    </HolderListWidget>
+                </Col>
 
-            <Col>
-                <RegisteredTrendsWidget>
-                </RegisteredTrendsWidget>
-            </Col>
-        </Row>
+                <Col>
+                    <RegisteredTrendsWidget>
+                    </RegisteredTrendsWidget>
+                </Col>
+            </Row>
+
+            <Row className="mb-3">
+                <Col>
+                    <HolderListWidget>
+                    </HolderListWidget>
+                </Col>
+
+                <Col>
+                    <RegisteredTrendsWidget>
+                    </RegisteredTrendsWidget>
+                </Col>
+            </Row>
+        </>
     );
 };

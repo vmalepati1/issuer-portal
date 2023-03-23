@@ -5,6 +5,7 @@ import { Routes } from "../routes";
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Investors from './Investors';
+import Activity from './Activity';
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -73,6 +74,7 @@ export default () => {
       <RouteWithLoader exact path={Routes.Login.path} component={Login}/>
       <RouteWithSidebar exact path={Routes.Dashboard.path} component={Dashboard} navbarTitle="Dashboard"/>
       <RouteWithSidebar exact path={Routes.Investors.path} component={Investors} navbarTitle="Investors"/>
+      <RouteWithSidebar exact path={Routes.Activity.path} component={Activity} navbarTitle="Activity"/>
 
       <Redirect to={Routes.NotFound.path} />
     </Switch>

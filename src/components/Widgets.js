@@ -9,6 +9,8 @@ import { Col, Row, Card, Image, Button, ListGroup, ProgressBar, Form, InputGroup
 import Flags from 'country-flag-icons/react/3x2';
 import { CircleChart } from "./Charts";
 import { faDesktop, faMobileAlt, faTabletAlt } from '@fortawesome/free-solid-svg-icons';
+import { Badge } from '@themesberg/react-bootstrap';
+import { Table } from '@themesberg/react-bootstrap';
 
 const CapitalBreakdownStat = (props) => {
   let link;
@@ -358,7 +360,13 @@ export const RegisteredTrendsWidget = (props) => {
   const stateData = [
       { id: 1, label: "Wyoming", value: 60, color: "secondary", icon: null },
       { id: 2, label: "South Carolina", value: 30, color: "tertiary", icon: null },
-      { id: 3, label: "Georgia", value: 10, color: "primary", icon: null }
+      { id: 3, label: "Georgia", value: 1, color: "primary", icon: null },
+      { id: 4, label: "New Hampshire", value: 1, color: "secondary", icon: null },
+      { id: 5, label: "Connecticut", value: 1, color: "tertiary", icon: null },
+      { id: 6, label: "California", value: 1, color: "primary", icon: null },
+      { id: 7, label: "Washington", value: 1, color: "secondary", icon: null },
+      { id: 8, label: "Illinois", value: 1, color: "tertiary", icon: null },
+      { id: 9, label: "Michigan", value: 4, color: "primary", icon: null }
   ];
 
   const holderTypeData = [
@@ -390,5 +398,83 @@ export const RegisteredTrendsWidget = (props) => {
         </div>
       </Card.Body>
     </Card>
+  );
+}
+
+export const ActivityWidget = (props) => {
+  return (
+    <>
+      <Card border="light" className="shadow-sm shadow-sm">
+        <Card.Header>
+          <div class="d-flex justify-content-between">
+            <div className="align-self-center">
+              <h4 className="center-block text-center p-0 m-0">Class A Stock</h4>
+            </div>
+
+            <Row className="align-self-center">
+              <Col className="d-flex justify-content-center align-items-center">
+                <Badge bg="tertiary">Transfers</Badge>
+              </Col>
+              
+              <Col className="d-flex justify-content-center align-items-center">
+                <Badge bg="tertiary">Trades</Badge>
+              </Col>
+
+              <Col className="d-flex justify-content-center align-items-center">
+                <Badge bg="tertiary">Options</Badge>
+              </Col>
+
+              <Col className="d-flex justify-content-center align-items-center">
+                <Badge bg="tertiary">Conversions</Badge>
+              </Col>
+            </Row>
+
+          </div>
+        </Card.Header>
+
+        <Card.Body>
+          <Table responsive>
+            <thead className="thead-light">
+              <tr>
+                <th className="border-0">Date</th>
+                <th className="border-0">Activity</th>
+                <th className="border-0">Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border-0 fw-bold">
+                  Apr. 23, 2023
+                </td>
+                <td className="border-0">Mike Smith transfered 31.57 DEMO to Charlie Mark</td>
+                <td className="border-0">
+                  <button type="button" class="btn px-1 py-0">
+                    <FontAwesomeIcon icon={faExternalLinkAlt}/>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+    </>
+  );
+}
+
+export const InsightsWidget = (props) => {
+  return (
+    <>
+      <Card border="light" className="shadow-sm text-white bg-primary">
+        <Card.Header>
+          <h4 className="center-block text-center">Insights</h4>
+        </Card.Header>
+
+        <Card.Body>
+          <div className="d-flex">
+            <h5>Transfers over 1 month: 39</h5>
+          </div>
+        </Card.Body>
+      </Card>
+    </>
   );
 }

@@ -1,11 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const dcent = require('dcent-cli-connector')
+const dcent = require('dcent-cli-connector');
+const request = require('request');
 
 app.use(cors());
 
 dcent.initialize();
+
+request('https://stellarid.io/federation/?q=cede*blocktransfer.io&type=name', { json: true}, (err, res, body) => {
+    if (err) { 
+        return console.log(err); 
+    }
+    
+    console.log(body.url);
+    console.log(body.explanation);
+});
 
 app.use('/login', async (req, res) => {
     var coinType = dcent.coinType.STELLAR;
