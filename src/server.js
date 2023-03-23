@@ -2,19 +2,39 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const dcent = require('dcent-cli-connector');
-const request = require('request');
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
+    fetch(...args));
+const toml = require('toml');
 
 app.use(cors());
 
 dcent.initialize();
 
-request('https://stellarid.io/federation/?q=cede*blocktransfer.io&type=name', { json: true}, (err, res, body) => {
-    if (err) { 
-        return console.log(err); 
+app.get('/asset-classes/:assetCode', async (req, res) => {
+    try {
+        const apiEndpoint = 'https://blocktransfer.io/assets/' + req.params.assetCode + '.toml';
+
+        const apiResponse = await fetch(apiEndpoint);
+
+        let apiResponseTxt = await apiResponse.text();
+
+        apiResponseTxt = apiResponseTxt.replace("desc.main", "desc-main");
+        apiResponseTxt = apiResponseTxt.replace("desc.business", "desc-business");
+        apiResponseTxt = apiResponseTxt.replace("desc.facilities", "desc-facilities");
+        apiResponseTxt = apiResponseTxt.replace("desc.products", "desc-products");
+
+        apiResponseTxt = apiResponseTxt.replace("ir.email", "ir-email");
+        apiResponseTxt = apiResponseTxt.replace("ir.phone", "ir-phone");
+
+        const assetTOML = toml.parse(apiResponseTxt);
+
+        console.log(assetTOML.STOCKS);
+
+        res.send('Hello');
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('Something went wrong');
     }
-    
-    console.log(body.url);
-    console.log(body.explanation);
 });
 
 app.use('/login', async (req, res) => {
