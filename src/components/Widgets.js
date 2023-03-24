@@ -45,10 +45,10 @@ const CapitalBreakdownStat = (props) => {
 
 // https://stackoverflow.com/questions/44382317/how-can-we-display-backend-data-in-react-js
 // Functional component
-export const CapitalBreakdownWidget = () => {
-  const [companyName, setCompanyName] = useState("Example Company");
-  const [className, setClassName] = useState("A");
-  const [parValue, setParValue] = useState("$0.0001");
+export const CapitalBreakdownWidget = (props) => {
+  let companyName = props.companyName;
+  let className = props.class;
+  let parValue = props.par;
 
   return (
     <Card border="light" className="shadow-sm text-white bg-primary">

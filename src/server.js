@@ -34,11 +34,8 @@ app.get('/asset-classes/:assetCode', async (req, res) => {
 
         for (let i in stocks) {
             let stock = stocks[i];
-            console.log(stock.code);
-            console.log(stock.class);
-            console.log(stock.par);
 
-            response.push({ code: stock.code, class: stock.class, par: stock.par});
+            response.push({ companyName: assetTOML.ISSUER.name, code: stock.code, class: stock.class, par: stock.par});
         }
 
         res.send(JSON.parse(JSON.stringify(response)));
