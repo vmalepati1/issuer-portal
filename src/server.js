@@ -12,6 +12,8 @@ dcent.initialize();
 
 app.get('/asset-classes/:assetCode', async (req, res) => {
     try {
+        let response = [];
+
         const apiEndpoint = 'https://blocktransfer.io/assets/' + req.params.assetCode + '.toml';
 
         const apiResponse = await fetch(apiEndpoint);
@@ -28,9 +30,18 @@ app.get('/asset-classes/:assetCode', async (req, res) => {
 
         const assetTOML = toml.parse(apiResponseTxt);
 
-        console.log(assetTOML.STOCKS);
+        const stocks = assetTOML.STOCKS;
 
-        res.send('Hello');
+        for (let i in stocks) {
+            let stock = stocks[i];
+            console.log(stock.code);
+            console.log(stock.class);
+            console.log(stock.par);
+
+            response.push({ code: stock.code, class: stock.class, par: stock.par});
+        }
+
+        res.send(JSON.parse(JSON.stringify(response)));
     } catch(err) {
         console.log(err);
         res.status(500).send('Something went wrong');
