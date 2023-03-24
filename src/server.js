@@ -45,6 +45,39 @@ app.get('/asset-classes/:assetCode', async (req, res) => {
     }
 });
 
+app.get('/asset-stats/:assetCode', async (req, res) => {
+    try {
+        let response = [];
+
+        const omnibusAccountResp = await fetch(
+            'https://stellarid.io/federation/?q=cede*blocktransfer.io&type=name');
+
+        let omnibusJSON = await omnibusAccountResp.json();
+        let omnibusAddr = omnibusJSON.account_id;
+
+        const accountDataResp = await fetch(
+            'https://horizon.stellar.org/accounts/' + omnibusAddr);
+
+        let accountDataJSON = await accountDataResp.json();
+
+        let sharesInDTC = 0;
+
+        for (let i in accountDataJSON.balances) {
+            let balance = accountDataJSON.balances[i];
+
+            if (balance.asset_type.toUpperCase() == req.params.assetCode) {
+                sharesInDTC += parseFloat(balance.balance);
+                break;
+            }
+        }
+
+        res.send(JSON.parse(JSON.stringify({ sharesInDTC: sharesInDTC })));
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('Something went wrong');
+    }
+});
+
 app.use('/login', async (req, res) => {
     var coinType = dcent.coinType.STELLAR;
 
