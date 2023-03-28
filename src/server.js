@@ -11,7 +11,7 @@ app.use(cors());
 
 dcent.initialize();
 
-app.get('/asset-classes/:assetCode', async (req, res) => {
+app.get('/asset-class-data/:assetCode', async (req, res) => {
     try {
         let response = [];
         
@@ -22,7 +22,18 @@ app.get('/asset-classes/:assetCode', async (req, res) => {
         for (let i in stocks) {
             let stock = stocks[i];
 
-            response.push({ companyName: assetTOML.ISSUER.name, code: stock.code, class: stock.class, par: stock.par});
+            let stats;
+
+            // TODO: Fix below
+            try {
+                stats = await getAssetStats(assetTOML, stock.code);
+            } catch(err) {
+                console.log(err);
+                continue;
+            }
+
+            response.push({ companyName: assetTOML.ISSUER.name, code: stock.code, 
+                            class: stock.class, par: stock.par, stats: stats });
         }
 
         res.send(JSON.parse(JSON.stringify(response)));
@@ -32,78 +43,69 @@ app.get('/asset-classes/:assetCode', async (req, res) => {
     }
 });
 
-app.get('/asset-stats/:assetCode', async (req, res) => {
-    try {
-        let response = [];
+async function getAssetStats(assetTOML, assetCode) {
+    let sharesInDTC = await getFederationResolvedBalance('cede*blocktransfer.io', assetCode);
+    let treasuryShares = await getFederationResolvedBalance(assetCode + '*treasury.holdings', assetCode);
 
-        let sharesInDTC = await getFederationResolvedBalance('cede*blocktransfer.io', req.params.assetCode);
-        let treasuryShares = await getFederationResolvedBalance(req.params.assetCode + '*treasury.holdings', req.params.assetCode);
+    let assetAddr = await getAssetAddress(assetCode);
 
-        let assetAddr = await getAssetAddress(req.params.assetCode);
+    const assetResp = await fetch(assetAddr);
+    let assetJSON = await assetResp.json();
 
-        const assetResp = await fetch(assetAddr);
-        let assetJSON = await assetResp.json();
+    const assetData = assetJSON._embedded.records[0];
 
-        const assetData = assetJSON._embedded.records[0];
+    let explicitRestrictedShares = parseFloat(assetData.claimable_balances_amount);
 
-        let explicitRestrictedShares = parseFloat(assetData.claimable_balances_amount);
+    let implicitRestrictedShares = 0.0;
 
-        let implicitRestrictedShares = 0.0;
+    for (let classifiers in assetData.balances) {
+        let balances = assetData.balances[classifiers];
 
-        for (let classifiers in assetData.balances) {
-            let balances = assetData.balances[classifiers];
-
-            if (classifiers != 'authorized') {
-                implicitRestrictedShares += parseFloat(balances);
-            }
+        if (classifiers != 'authorized') {
+            implicitRestrictedShares += parseFloat(balances);
         }
-
-        let restrictedShares = explicitRestrictedShares + implicitRestrictedShares;
-
-        let dsppShares = await getFederationResolvedBalance(req.params.assetCode + '*authorized.DSPP.holdings', req.params.assetCode);
-        let pendingIPOShares = await getFederationResolvedBalance(req.params.assetCode + '*initial.offering.holdings', req.params.assetCode);
-        let regAShares = await getFederationResolvedBalance(req.params.assetCode + '*reg.a.offering.holdings', req.params.assetCode);
-        let regCFShares = await getFederationResolvedBalance(req.params.assetCode + '*reg.cf.offering.holdings', req.params.assetCode);
-        let privatePlacementShares = await getFederationResolvedBalance(req.params.assetCode + '*reg.d.offering.holdings', req.params.assetCode);
-        let shelfShares = await getFederationResolvedBalance(req.params.assetCode + '*shelf.offering.holdings', req.params.assetCode);
-
-        let reservedShares = dsppShares + pendingIPOShares + regAShares + regCFShares + privatePlacementShares + shelfShares;
-
-        const assetTOML = await getAssetTOML(req.params.assetCode);
-
-        let stock = assetTOML.STOCKS.find((s) => s.code == req.params.assetCode);
-
-        let authorizedShares = stock.authorized;
-
-        let shares = parseFloat(assetData.liquidity_pools_amount);
-
-        for (let classifiers in assetData.balances) {
-            let balances = assetData.balances[classifiers];
-
-            shares += parseFloat(balances);
-        }
-        
-        shares += parseFloat(assetData.claimable_balances_amount);
-
-        let outstandingShares = shares - treasuryShares - reservedShares;
-
-        res.send(JSON.parse(JSON.stringify({ sharesInDTC: sharesInDTC, 
-                                             treasuryShares: treasuryShares, 
-                                             restrictedShares: restrictedShares,
-                                             dsppShares: dsppShares,
-                                             pendingIPOShares: pendingIPOShares,
-                                             regAShares: regAShares,
-                                             regCFShares: regCFShares,
-                                             privatePlacementShares: privatePlacementShares,
-                                             shelfShares: shelfShares,
-                                             reservedShares: reservedShares,
-                                             authorizedShares: authorizedShares,
-                                             outstandingShares: outstandingShares })));
-    } catch(err) {
-        console.log(err);
-        res.status(500).send('Something went wrong');
     }
-});
+
+    let restrictedShares = explicitRestrictedShares + implicitRestrictedShares;
+
+    let dsppShares = await getFederationResolvedBalance(assetCode + '*authorized.DSPP.holdings', assetCode);
+    let pendingIPOShares = await getFederationResolvedBalance(assetCode + '*initial.offering.holdings', assetCode);
+    let regAShares = await getFederationResolvedBalance(assetCode + '*reg.a.offering.holdings', assetCode);
+    let regCFShares = await getFederationResolvedBalance(assetCode + '*reg.cf.offering.holdings', assetCode);
+    let privatePlacementShares = await getFederationResolvedBalance(assetCode + '*reg.d.offering.holdings', assetCode);
+    let shelfShares = await getFederationResolvedBalance(assetCode + '*shelf.offering.holdings', assetCode);
+
+    let reservedShares = dsppShares + pendingIPOShares + regAShares + regCFShares + privatePlacementShares + shelfShares;
+
+    let stock = assetTOML.STOCKS.find((s) => s.code == assetCode);
+
+    let authorizedShares = stock.authorized;
+
+    let shares = parseFloat(assetData.liquidity_pools_amount);
+
+    for (let classifiers in assetData.balances) {
+        let balances = assetData.balances[classifiers];
+
+        shares += parseFloat(balances);
+    }
+    
+    shares += parseFloat(assetData.claimable_balances_amount);
+
+    let outstandingShares = shares - treasuryShares - reservedShares;
+
+    return { sharesInDTC: sharesInDTC, 
+        treasuryShares: treasuryShares, 
+        restrictedShares: restrictedShares,
+        dsppShares: dsppShares,
+        pendingIPOShares: pendingIPOShares,
+        regAShares: regAShares,
+        regCFShares: regCFShares,
+        privatePlacementShares: privatePlacementShares,
+        shelfShares: shelfShares,
+        reservedShares: reservedShares,
+        authorizedShares: authorizedShares,
+        outstandingShares: outstandingShares };
+}
 
 async function getAssetTOML(assetCode) {
     const apiEndpoint = 'https://blocktransfer.io/assets/' + assetCode + '.toml';

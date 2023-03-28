@@ -11,7 +11,7 @@ export default function Dashboard() {
         fetch('http://localhost:8080/asset-classes/DEMO')
             .then(results => results.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 setClassesInfo(data);
             });
     }, []);
