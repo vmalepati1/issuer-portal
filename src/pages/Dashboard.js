@@ -8,7 +8,7 @@ export default function Dashboard() {
     const [ classesInfo, setClassesInfo ] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8080/asset-classes/DEMO')
+        fetch('http://localhost:8080/asset-class-data/DEMO')
             .then(results => results.json())
             .then(data => {
                 // console.log(data);
@@ -24,7 +24,20 @@ export default function Dashboard() {
                 <Col className="mb-4">
                     <CapitalBreakdownWidget companyName={classInfo.companyName} 
                                             class={classInfo.class} 
-                                            par={classInfo.par}>
+                                            par={classInfo.par}
+                                            sharesOutstanding={classInfo.stats.outstandingShares}
+                                            sharesAtDTC={classInfo.stats.sharesInDTC}
+                                            treasuryShares={classInfo.stats.treasuryShares}
+                                            restrictedShares={classInfo.stats.restrictedShares}
+                                            reservedShares={classInfo.stats.reservedShares}
+                                            authorizedShares={classInfo.stats.authorizedShares}
+                                            dsppShares={classInfo.stats.dsppShares}
+                                            pendingIPOShares={classInfo.stats.pendingIPOShares}
+                                            regAShares={classInfo.stats.regAShares}
+                                            regCFShares={classInfo.stats.regCFShares}
+                                            privatePlacementShares={classInfo.stats.privatePlacementShares}
+                                            shelfShares={classInfo.stats.shelfShares}
+                                            >
                     </CapitalBreakdownWidget>
                 </Col>
             

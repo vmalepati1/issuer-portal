@@ -50,6 +50,20 @@ export const CapitalBreakdownWidget = (props) => {
   let className = props.class;
   let parValue = props.par;
 
+  let sharesOutstanding = props.sharesOutstanding.toLocaleString("en-US");
+  let sharesAtDTC = props.sharesAtDTC.toLocaleString("en-US");
+  let treasuryShares = props.treasuryShares.toLocaleString("en-US");
+  let restrictedShares = props.restrictedShares.toLocaleString("en-US");
+  let reservedShares = props.reservedShares.toLocaleString("en-US");
+  let authorizedShares = props.authorizedShares.toLocaleString("en-US");
+
+  let dsppShares = props.dsppShares.toLocaleString("en-US");
+  let pendingIPOShares = props.pendingIPOShares.toLocaleString("en-US");
+  let regAShares = props.regAShares.toLocaleString("en-US");
+  let regCFShares = props.regCFShares.toLocaleString("en-US");
+  let privatePlacementShares = props.privatePlacementShares.toLocaleString("en-US");
+  let shelfShares = props.shelfShares.toLocaleString("en-US");
+
   return (
     <Card border="light" className="shadow-sm text-white bg-primary">
       <Card.Header>
@@ -63,35 +77,35 @@ export const CapitalBreakdownWidget = (props) => {
           <CapitalBreakdownStat 
             statIcon={faChartLine} 
             statName={"shares outstanding"}
-            statNumber={"384,290"}
+            statNumber={sharesOutstanding}
             displayLink={true}
           ></CapitalBreakdownStat>
 
           <CapitalBreakdownStat 
             statIcon={faLandmark} 
             statName={"shares at DTC"}
-            statNumber={"333,179.43"}
+            statNumber={sharesAtDTC}
             displayLink={true}
           ></CapitalBreakdownStat>
 
           <CapitalBreakdownStat 
             statIcon={faBook} 
             statName={"treasury shares"}
-            statNumber={"25,555.285"}
+            statNumber={treasuryShares}
             displayLink={true}
           ></CapitalBreakdownStat>
 
 <         CapitalBreakdownStat 
             statIcon={faShieldAlt} 
             statName={"restricted shares"}
-            statNumber={"25,555.285"}
+            statNumber={restrictedShares}
             displayLink={false}
           ></CapitalBreakdownStat>
 
 <         CapitalBreakdownStat 
             statIcon={faEnvelopeOpenText} 
             statName={"reserved shares"}
-            statNumber={"18,600"}
+            statNumber={reservedShares}
             displayLink={false}
           ></CapitalBreakdownStat>
 
@@ -116,7 +130,7 @@ export const CapitalBreakdownWidget = (props) => {
           <CapitalBreakdownStat 
             statIcon={faScroll} 
             statName={"authorized shares"}
-            statNumber={"592,555"}
+            statNumber={authorizedShares}
             displayLink={true}
           ></CapitalBreakdownStat>
         </div>
