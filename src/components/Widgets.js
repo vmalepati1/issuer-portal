@@ -43,6 +43,22 @@ const CapitalBreakdownStat = (props) => {
   );
 };
 
+const PoolStat = (props) => {
+  let poolName = props.poolName;
+  let value = props.poolShares.toLocaleString("en-US");
+
+  return (
+    <div className="d-flex w-75">
+      <div className="d-block ms-auto">
+        <label className="mb-0">{value} in {poolName} pool</label>
+      </div>
+      <Card.Link href="#top" className="text-quaternary fw-bold">
+        <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
+      </Card.Link>
+    </div>
+  );
+}
+
 // https://stackoverflow.com/questions/44382317/how-can-we-display-backend-data-in-react-js
 // Functional component
 export const CapitalBreakdownWidget = (props) => {
@@ -57,12 +73,12 @@ export const CapitalBreakdownWidget = (props) => {
   let reservedShares = props.reservedShares.toLocaleString("en-US");
   let authorizedShares = props.authorizedShares.toLocaleString("en-US");
 
-  let dsppShares = props.dsppShares.toLocaleString("en-US");
-  let pendingIPOShares = props.pendingIPOShares.toLocaleString("en-US");
-  let regAShares = props.regAShares.toLocaleString("en-US");
-  let regCFShares = props.regCFShares.toLocaleString("en-US");
-  let privatePlacementShares = props.privatePlacementShares.toLocaleString("en-US");
-  let shelfShares = props.shelfShares.toLocaleString("en-US");
+  let dsppShares = props.dsppShares;
+  let pendingIPOShares = props.pendingIPOShares;
+  let regAShares = props.regAShares;
+  let regCFShares = props.regCFShares;
+  let privatePlacementShares = props.privatePlacementShares;
+  let shelfShares = props.shelfShares;
 
   return (
     <Card border="light" className="shadow-sm text-white bg-primary">
@@ -109,24 +125,21 @@ export const CapitalBreakdownWidget = (props) => {
             displayLink={false}
           ></CapitalBreakdownStat>
 
-          <div className="d-flex w-75">
-            <div className="d-block ms-auto">
-              <label className="mb-0">18,600 in employee plan pool</label>
-            </div>
-            <Card.Link href="#top" className="text-quaternary fw-bold">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
+          { props.dsppShares > 0
+            ? <PoolStat poolName="DSPP" poolShares={dsppShares}></PoolStat>
+            : <></>
+          }
 
-          <div className="d-flex w-75">
-            <div className="d-block ms-auto">
-              <label className="mb-0">600 in private placement pool</label>
-            </div>
-            <Card.Link href="#top" className="text-quaternary fw-bold">
-              <FontAwesomeIcon icon={faExternalLinkAlt} className="ms-2" />
-            </Card.Link>
-          </div>
+          { props.pendingIPOShares > 0
+            ? <PoolStat poolName="pending IPO" poolShares={pendingIPOShares}></PoolStat>
+            : <></>
+          }
 
+          <PoolStat poolName="Reg A offering" poolShares={regAShares}></PoolStat>
+          <PoolStat poolName="Reg CF offering" poolShares={regCFShares}></PoolStat>
+          <PoolStat poolName="private placement" poolShares={privatePlacementShares}></PoolStat>
+          <PoolStat poolName="shelf registration" poolShares={shelfShares}></PoolStat>
+          
           <CapitalBreakdownStat 
             statIcon={faScroll} 
             statName={"authorized shares"}
