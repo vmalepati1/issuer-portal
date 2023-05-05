@@ -51,10 +51,13 @@ app.get('/get-top-investors/:assetCode', async (req, res) => {
     let issuer = await getAssetIssuer(req.params.assetCode);
 
     while (ledgerJSON._embedded.records.length > 0) {
-        for (let accounts in ledgerJSON._embedded.records) {
+        for (let i in ledgerJSON._embedded.records) {
+            let accounts = ledgerJSON._embedded.records[i];
             let account = accounts.id;
 
-            for (let balances in accounts.balances) {
+            for (let b in accounts.balances) {
+                let balances = accounts.balances[b];
+
                 if (!('asset_code' in balances) || !('asset_issuer' in balances)) {
                     continue;
                 }
@@ -63,7 +66,11 @@ app.get('/get-top-investors/:assetCode', async (req, res) => {
                     && balances.asset_issuer == issuer) {
                     let balance = parseFloat(balances.balance);
                     
-                    ledgerBalances.push((account, balance));
+                    if (balance > 0) {
+                        ledgerBalances.push({account_id: account, balance: balance});
+                    }
+
+                    break;
                 }
             }
         }
@@ -225,16 +232,16 @@ async function getAssetAccountsAddress(queryAsset) {
 }
 
 async function getNextLedgerJSON(ledgerJSON) {
-    let nextAddr = ledgerJSON._links.next.href.replace("%3A", ":").replace("\u0026", "&");
+    let nextAddr = ledgerJSON._links.next.href.replace(/%3A/g, ":").replace(/\u0026/g, "&");
 
     let response = await fetch(nextAddr);
 
     let responseJSON = await response.json();
 
-    if (Object.keys(responseJSON).length) {
-        if (!('status' in responseJSON)) {
-            return await getNextLedgerJSON(ledgerJSON);
-        }
+    if (Object.keys(responseJSON).length 
+            && responseJSON.hasOwnProperty("status") 
+            && !responseJSON.status) {
+        return await getNextLedgerJSON(ledgerJSON);
     } else {
         return responseJSON;
     }
