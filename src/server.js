@@ -78,11 +78,19 @@ app.get('/get-top-investors/:assetCode', async (req, res) => {
         ledgerJSON = await getNextLedgerJSON(ledgerJSON);
     }
 
-    console.log(ledgerBalances);
+    ledgerBalances.sort((a, b) => {
+        if (a.balance < b.balance) {
+            return 1;
+        }
 
-    res.send({
-        token: 'test123'
+        if (a.balance > b.balance) {
+            return -1;
+        }
+
+        return 0;
     });
+
+    res.send(ledgerBalances);
 });
 
 async function getAssetStats(assetTOML, assetCode) {
