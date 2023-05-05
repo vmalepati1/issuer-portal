@@ -1,15 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const dcent = require('dcent-cli-connector');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
     fetch(...args));
 const toml = require('toml');
-const { BT_ISSUERS } = require('./globals');
+const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH } = require('./globals');
+const { response } = require('express');
 
 app.use(cors());
-
-dcent.initialize();
 
 app.get('/asset-class-data/:assetCode', async (req, res) => {
     try {
@@ -41,6 +39,43 @@ app.get('/asset-class-data/:assetCode', async (req, res) => {
         console.log(err);
         res.status(500).send('Something went wrong');
     }
+});
+
+app.get('/get-top-investors/:assetCode', async (req, res) => {
+    let requestAddr = await getAssetAccountsAddress(req.params.assetCode);
+
+    let ledger = await fetch(requestAddr);
+    let ledgerJSON = await ledger.json();
+    let ledgerBalances = [];
+
+    let issuer = await getAssetIssuer(req.params.assetCode);
+
+    while (ledgerJSON._embedded.records.length > 0) {
+        for (let accounts in ledgerJSON._embedded.records) {
+            let account = accounts.id;
+
+            for (let balances in accounts.balances) {
+                if (!('asset_code' in balances) || !('asset_issuer' in balances)) {
+                    continue;
+                }
+
+                if (balances.asset_code == req.params.assetCode 
+                    && balances.asset_issuer == issuer) {
+                    let balance = parseFloat(balances.balance);
+                    
+                    ledgerBalances.push((account, balance));
+                }
+            }
+        }
+
+        ledgerJSON = await getNextLedgerJSON(ledgerJSON);
+    }
+
+    console.log(ledgerBalances);
+
+    res.send({
+        token: 'test123'
+    });
 });
 
 async function getAssetStats(assetTOML, assetCode) {
@@ -142,8 +177,7 @@ async function getFederationResolvedBalance(federationAddr, assetCode) {
 async function getAccountBalance(addr, assetCode) {
     let shares = 0;
 
-    const accountDataResp = await fetch(
-        'https://horizon.stellar.org/accounts/' + addr);
+    const accountDataResp = await fetch(HORIZON_INST + '/accounts/' + addr);
 
     let accountDataJSON = await accountDataResp.json();
 
@@ -160,7 +194,7 @@ async function getAccountBalance(addr, assetCode) {
 }
 
 async function getAssetIssuer(queryAsset) {
-    let requestAddr = 'https://horizon.stellar.org/assets?asset_code=' + queryAsset + '&asset_issuer=';
+    let requestAddr = HORIZON_INST + '/assets?asset_code=' + queryAsset + '&asset_issuer=';
 
     for (let i in BT_ISSUERS) {
         let address = BT_ISSUERS[i];
@@ -179,25 +213,34 @@ async function getAssetIssuer(queryAsset) {
 async function getAssetAddress(queryAsset) {
     let issuer = await getAssetIssuer(queryAsset);
 
-    return 'https://horizon.stellar.org/assets?asset_code=' 
+    return HORIZON_INST + '/assets?asset_code=' 
                 + queryAsset + '&asset_issuer=' + issuer;
 }
 
+async function getAssetAccountsAddress(queryAsset) {
+    let issuer = await getAssetIssuer(queryAsset);
+
+    return HORIZON_INST + '/accounts?asset=' + queryAsset 
+            + ':' + issuer + '&' + MAX_SEARCH;
+}
+
+async function getNextLedgerJSON(ledgerJSON) {
+    let nextAddr = ledgerJSON._links.next.href.replace("%3A", ":").replace("\u0026", "&");
+
+    let response = await fetch(nextAddr);
+
+    let responseJSON = await response.json();
+
+    if (Object.keys(responseJSON).length) {
+        if (!('status' in responseJSON)) {
+            return await getNextLedgerJSON(ledgerJSON);
+        }
+    } else {
+        return responseJSON;
+    }
+}
+
 app.use('/login', async (req, res) => {
-    var coinType = dcent.coinType.STELLAR;
-
-    // getAddress(coinType, "m/44'/0'/0'/0/0")
-    await dcent
-        .getAddress(coinType, "m/44'/0'/0'/0/0")
-        .then(
-            response => {
-                console.log("Hello");
-                console.log(response);
-            }
-        ).catch(error => {
-            console.log("Authentication error:", error);
-        });
-
     res.send({
         token: 'test123'
     });
