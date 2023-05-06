@@ -6,22 +6,51 @@ import { CapitalBreakdownWidget, TopRegisteredHoldersWidget } from "../component
 
 export default function Dashboard() {
     const [ classesInfo, setClassesInfo ] = useState([]);
+    const [ investorInfo, setInvestorInfo ] = useState([])
+
+    const assetCode = 'DEMO';
 
     useEffect(() => {
-        fetch('http://localhost:8080/asset-class-data/DEMO')
+        fetch(`http://localhost:8080/asset-class-data/${assetCode}`)
             .then(results => results.json())
             .then(data => {
                 // console.log(data);
                 setClassesInfo(data);
+            })
+            .catch(error => {
+                console.error(error);
             });
     }, []);
+
+    useEffect(() => {
+        const promises = classesInfo.map(assetClass => {
+            return fetch(`http://localhost:8080/get-top-investors/${assetClass.code}`)
+                .then(results => results.json())
+                .then(investors => {
+                    const investorData = {
+                        class: assetClass.class,
+                        investors: investors
+                      };
+
+                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, investorData]);
+                });
+        });
+
+        Promise.all(promises)
+            .then(() => {
+                console.log(investorInfo);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }, [classesInfo]);
 
     return (
         <>
         { classesInfo.map((classInfo) => {
             return (
             <Row>
-                <Col className="mb-4">
+                <Col className="mb-4" xs={12} md={6}>
                     <CapitalBreakdownWidget companyName={classInfo.companyName} 
                                             class={classInfo.class} 
                                             par={classInfo.par}
@@ -41,8 +70,8 @@ export default function Dashboard() {
                     </CapitalBreakdownWidget>
                 </Col>
             
-                <Col className="mb-4">
-                    <TopRegisteredHoldersWidget></TopRegisteredHoldersWidget>
+                <Col className="mb-4" xs={12} md={6}>
+                    <TopRegisteredHoldersWidget class={classInfo.class}></TopRegisteredHoldersWidget>
                 </Col>
             </Row>
             );

@@ -168,11 +168,11 @@ const HolderWidget = (props) => {
   );
 };
 
-export const TopRegisteredHoldersWidget = () => {
+export const TopRegisteredHoldersWidget = (props) => {
   return (
     <Card border="light" className="shadow-sm shadow-sm">
       <Card.Header>
-        <h4 className="center-block text-center">Top Registered Holders</h4>
+        <h4 className="center-block text-center">Class {props.class} Registered Holders</h4>
       </Card.Header>
 
       <Card.Body>

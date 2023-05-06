@@ -13,8 +13,9 @@
 
 .centered-button {
     display: block;
-    width: 25%;
+    width: auto;
     margin: 0 auto;
+    white-space: nowrap;
 }
 
 .login-header {
