@@ -11,6 +11,8 @@ import { CircleChart } from "./Charts";
 import { faDesktop, faMobileAlt, faTabletAlt } from '@fortawesome/free-solid-svg-icons';
 import { Badge } from '@themesberg/react-bootstrap';
 import { Table } from '@themesberg/react-bootstrap';
+import collapse from "bootstrap/js/src/collapse";
+import { chunkArray } from "../utils";
 
 const CapitalBreakdownStat = (props) => {
   let link;
@@ -157,11 +159,13 @@ const HolderWidget = (props) => {
   const Flag = Flags[props.nationCode];
 
   return (
-    <div className="d-flex w-90 fixed-stat">
-      <Flag title={props.nationCode} className="... flag align-self-end mb-2 ms-5"/>
+    <div className="d-flex w-90 fixed-stat" style={{ overflow: 'auto' }}>
+      <div className="align-self-end mb-2 ms-5">
+        <Flag title={props.nationCode} className="... flag"/>
+      </div>
       <div className="d-block ms-auto">
         <label className="mb-0 d-block text-right bold-name">{props.name}</label>
-        <label className="mb-0 d-block text-right">{props.numShares} shares</label>
+        <label className="mb-0 d-block text-right">{Math.round(props.numShares).toString()} shares</label>
         <label className="mb-0 d-block text-right">({(props.percent * 100).toFixed(3)}%)</label>
       </div>
     </div>
@@ -169,6 +173,14 @@ const HolderWidget = (props) => {
 };
 
 export const TopRegisteredHoldersWidget = (props) => {
+  const investors = props.investors;
+  const maxVisibleInvestors = 10;
+
+  const visibleInvestors = investors.slice(0, maxVisibleInvestors);
+  const remainingInvestors = investors.slice(maxVisibleInvestors);
+
+  const investorsByRow = chunkArray(visibleInvestors, 2);
+
   return (
     <Card border="light" className="shadow-sm shadow-sm">
       <Card.Header>
@@ -177,71 +189,39 @@ export const TopRegisteredHoldersWidget = (props) => {
 
       <Card.Body>
         <div className="d-block">
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="IN"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-            </Col>
-          </Row>
-
-          <Row className="mt-1 mb-1">
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
-            </Col>
-
-            <Col col="d-flex justify-content-center align-items-center">
-              <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-            </Col>
-          </Row>
-
-          <div className="collapse multi-collapse" id="collapsedShareholders">
-            <Row className="mt-1 mb-1">
-              <Col col="d-flex justify-content-center align-items-center">
-                <HolderWidget name="Vanguard Trust" numShares="3,290" percent="0.01223" nationCode="US"></HolderWidget>
-              </Col>
-
-              <Col col="d-flex justify-content-center align-items-center">
-                <HolderWidget name="FMR Co" numShares="1,290" percent="0.01012" nationCode="US"></HolderWidget>
-              </Col>
+          {investorsByRow.map((row, i) => (
+            <Row className="mt-1 mb-1" key={i}>
+              {row.map(investor => (
+                <Col col="d-flex justify-content-center align-items-center">
+                  <HolderWidget name="Vanguard" numShares={investor.balance}
+                                percent={(investor.balance / props.sharesOutstanding)} 
+                                nationCode="IN"></HolderWidget>
+                </Col>
+              ))}
             </Row>
-          </div>
+          ))}
 
-          <button className="btn btn-secondary centered-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedShareholders" aria-expanded="false" aria-controls="collapsedShareholders">
-            View All
-          </button>
+          { remainingInvestors.length > 0 && (
+            <div className="collapse" id="collapsedShareholders">
+              { chunkArray(remainingInvestors, 2).map((row, i) => (
+                <Row className="mt-1 mb-1">
+                  {row.map(investor => (
+                    <Col col="d-flex justify-content-center align-items-center">
+                      <HolderWidget name="Vanguard" numShares={investor.balance}
+                        percent={(investor.balance / props.sharesOutstanding)} 
+                        nationCode="IN"></HolderWidget>
+                    </Col>
+                  ))}
+                </Row>
+              ))}
+            </div>
+          )}
+
+          {remainingInvestors.length > 0 && (
+            <button className="btn btn-secondary centered-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedShareholders" aria-expanded="false" aria-controls="collapsedShareholders">
+              View All
+            </button>
+          )}
         </div>
       </Card.Body>
     </Card>

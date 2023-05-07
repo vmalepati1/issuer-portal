@@ -6,7 +6,7 @@ import { CapitalBreakdownWidget, TopRegisteredHoldersWidget } from "../component
 
 export default function Dashboard() {
     const [ classesInfo, setClassesInfo ] = useState([]);
-    const [ investorInfo, setInvestorInfo ] = useState([])
+    const [ investorInfo, setInvestorInfo ] = useState([]);
 
     const assetCode = 'DEMO';
 
@@ -27,29 +27,27 @@ export default function Dashboard() {
             return fetch(`http://localhost:8080/get-top-investors/${assetClass.code}`)
                 .then(results => results.json())
                 .then(investors => {
-                    const investorData = {
-                        class: assetClass.class,
-                        investors: investors
-                      };
-
-                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, investorData]);
+                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, investors]);
                 });
         });
 
         Promise.all(promises)
-            .then(() => {
-                console.log(investorInfo);
-            })
             .catch(error => {
                 console.error(error);
             });
     }, [classesInfo]);
 
+    useEffect(() => {
+        console.log(investorInfo);
+      }, [investorInfo]);
+
     return (
         <>
-        { classesInfo.map((classInfo) => {
+        { classesInfo.map((classInfo, index) => {
+            const investorData = investorInfo[index] || [];
+
             return (
-            <Row>
+            <Row key={classInfo.code}>
                 <Col className="mb-4" xs={12} md={6}>
                     <CapitalBreakdownWidget companyName={classInfo.companyName} 
                                             class={classInfo.class} 
@@ -71,7 +69,10 @@ export default function Dashboard() {
                 </Col>
             
                 <Col className="mb-4" xs={12} md={6}>
-                    <TopRegisteredHoldersWidget class={classInfo.class}></TopRegisteredHoldersWidget>
+                    <TopRegisteredHoldersWidget class={classInfo.class} 
+                                                investors={investorData}
+                                                sharesOutstanding={classInfo.stats.outstandingShares}>
+                    </TopRegisteredHoldersWidget>
                 </Col>
             </Row>
             );
