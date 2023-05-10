@@ -11,6 +11,18 @@
 * `package.json`: this is an important file that contains the project dependencies, the base URL for the project when building the production code, and also some useful scripts that you can use via NPM;
 * `node_modules/`: this is the folder where all dependencies will be installed after running yarn install;
 
+# Quick Start
+1. Make sure you have [Node.js](https://nodejs.org/en) installed. Make sure the installed Node version is >= 8.10 and of npm >= 5.6
+
+2. After installing Node.js, open a terminal and run `npm install` in the main issuer-portal/ folder to download all project dependencies. You'll find them in the `node_modules/` folder.
+`npm install`
+
+4. Start the backend server by running the following command:
+`node src/server.js`
+
+3. In a separate terminal start the app in development mode by running the following command:
+`npm run start`
+
 # Sections
 ## Dashboard ##
 - Capital breakdown
