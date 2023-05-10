@@ -15,13 +15,19 @@
 1. Make sure you have [Node.js](https://nodejs.org/en) installed. Make sure the installed Node version is >= 8.10 and of npm >= 5.6
 
 2. After installing Node.js, open a terminal and run `npm install` in the main issuer-portal/ folder to download all project dependencies. You'll find them in the `node_modules/` folder.
-`npm install`
+```
+npm install
+```
 
 4. Start the backend server by running the following command:
-`node src/server.js`
+```
+node src/server.js
+```
 
 3. In a separate terminal start the app in development mode by running the following command:
-`npm run start`
+```
+npm run start
+```
 
 # Sections
 ## Dashboard ##
