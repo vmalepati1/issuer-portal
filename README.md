@@ -19,12 +19,12 @@
 npm install
 ```
 
-4. Start the backend server by running the following command:
+3. Start the backend server by running the following command:
 ```
 node src/server.js
 ```
 
-3. In a separate terminal start the app in development mode by running the following command:
+4. In a separate terminal start the app in development mode by running the following command:
 ```
 npm run start
 ```
