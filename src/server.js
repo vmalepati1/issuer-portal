@@ -7,9 +7,7 @@ const toml = require('toml');
 const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH } = require('./globals');
 const { response } = require('express');
 
-app.use(cors());
-
-app.get('/asset-class-data/:assetCode', async (req, res) => {
+app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
     try {
         let response = [];
         
@@ -41,14 +39,14 @@ app.get('/asset-class-data/:assetCode', async (req, res) => {
     }
 });
 
-app.get('/get-top-investors/:assetCode', async (req, res) => {
-    let requestAddr = await getAssetAccountsAddress(req.params.assetCode);
+app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
+    let issuer = await getAssetIssuer(req.params.assetCode);
+
+    let requestAddr = await getAssetAccountsAddress(req.params.assetCode, issuer);
 
     let ledger = await fetch(requestAddr);
     let ledgerJSON = await ledger.json();
     let ledgerBalances = [];
-
-    let issuer = await getAssetIssuer(req.params.assetCode);
 
     while (ledgerJSON._embedded.records.length > 0) {
         for (let i in ledgerJSON._embedded.records) {
@@ -232,9 +230,7 @@ async function getAssetAddress(queryAsset) {
                 + queryAsset + '&asset_issuer=' + issuer;
 }
 
-async function getAssetAccountsAddress(queryAsset) {
-    let issuer = await getAssetIssuer(queryAsset);
-
+async function getAssetAccountsAddress(queryAsset, issuer) {
     return HORIZON_INST + '/accounts?asset=' + queryAsset 
             + ':' + issuer + '&' + MAX_SEARCH;
 }
@@ -260,5 +256,29 @@ app.use('/login', async (req, res) => {
         token: 'test123'
     });
 });
+
+// Create a middleware to track pending requests
+// This executes after every route handler executes
+// const trackRequests = (req, res, next) => {
+//     const originalEnd = res.end;
+//     res.end = function (...args) {
+//       res.end = originalEnd;
+//       res.end(...args);
+//       clearTimeout(graceTimeout);
+//       graceTimeout = setTimeout(() => {
+//         if (!pendingRequests) {
+//           // No pending requests during the grace period, stop the profiler
+//           profiler.stopProfiling(profile);
+//         }
+//       }, gracePeriod);
+//       pendingRequests--;
+//     };
+  
+//     pendingRequests++;
+//     next();
+//   };
+
+app.use(cors());
+// app.use(trackRequests);
 
 app.listen(8080, () => console.log('API is running on port 8080'));
