@@ -192,7 +192,7 @@ export const TopRegisteredHoldersWidget = (props) => {
           {investorsByRow.map((row, i) => (
             <Row className="mt-1 mb-1" key={i}>
               {row.map(investor => (
-                <Col col="d-flex justify-content-center align-items-center">
+                <Col id="holder-col" col="d-flex justify-content-center align-items-center" key={investor.account_id}>
                   <HolderWidget name="Vanguard" numShares={investor.balance}
                                 percent={(investor.balance / props.sharesOutstanding)} 
                                 nationCode="IN"></HolderWidget>
@@ -206,7 +206,7 @@ export const TopRegisteredHoldersWidget = (props) => {
               { chunkArray(remainingInvestors, 2).map((row, i) => (
                 <Row className="mt-1 mb-1">
                   {row.map(investor => (
-                    <Col col="d-flex justify-content-center align-items-center">
+                    <Col id="holder-col" col="d-flex justify-content-center align-items-center" key={investor.account_id}>
                       <HolderWidget name="Vanguard" numShares={investor.balance}
                         percent={(investor.balance / props.sharesOutstanding)} 
                         nationCode="IN"></HolderWidget>

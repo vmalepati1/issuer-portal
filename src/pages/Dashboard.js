@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { Col, Row, Button, Dropdown, ButtonGroup } from '@themesberg/react-bootstrap';
 import { CapitalBreakdownWidget, TopRegisteredHoldersWidget } from "../components/Widgets";
+import { STREET_NAME_ACCOUNTS } from "../globals";
 // import { DcentCLIConnector } from 'dcent-cli-connector';
 
 export default function Dashboard() {
@@ -27,7 +28,11 @@ export default function Dashboard() {
             return fetch(`http://localhost:8080/get-top-investors/${assetClass.code}`)
                 .then(results => results.json())
                 .then(investors => {
-                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, investors]);
+                    const filteredInvestors = investors.filter(
+                        investor => !STREET_NAME_ACCOUNTS.includes(investor.account_id)
+                    );
+
+                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, filteredInvestors]);
                 });
         });
 
@@ -36,10 +41,6 @@ export default function Dashboard() {
                 console.error(error);
             });
     }, [classesInfo]);
-
-    useEffect(() => {
-        console.log(investorInfo);
-      }, [investorInfo]);
 
     return (
         <>

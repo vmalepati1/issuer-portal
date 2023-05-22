@@ -5,4 +5,8 @@ const BT_ISSUERS = [
 const HORIZON_INST = "https://horizon.stellar.org";
 const MAX_SEARCH = "limit=200";
 
-module.exports = { BT_ISSUERS, HORIZON_INST, MAX_SEARCH };
+const STREET_NAME_ACCOUNTS = [
+    "GAQKSRI4E5643UUUMJT4RWCZVLY25TBNZXDME4WLRIF5IPOLTLV7N4N6" // Cede & Co.
+];
+
+module.exports = { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, STREET_NAME_ACCOUNTS };
