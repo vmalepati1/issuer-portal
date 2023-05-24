@@ -8,7 +8,7 @@ export default function Investors() {
         <>
             <Row className="mb-3">
                 <Col>
-                    <HolderListWidget>
+                    <HolderListWidget class="A">
                     </HolderListWidget>
                 </Col>
 
@@ -20,7 +20,7 @@ export default function Investors() {
 
             <Row className="mb-3">
                 <Col>
-                    <HolderListWidget>
+                    <HolderListWidget class="B">
                     </HolderListWidget>
                 </Col>
 

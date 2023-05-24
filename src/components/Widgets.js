@@ -300,7 +300,7 @@ export const HolderListWidget = (props) => {
             </div>
 
             <div class="center-holder-title">
-              <h4 className="center-block text-center p-0 m-0">Class A Stockholders</h4>
+              <h4 className="center-block text-center p-0 m-0">Class {props.class} Stockholders</h4>
             </div>
 
             <div class="right-download">
