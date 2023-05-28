@@ -257,13 +257,7 @@ const HolderDetailsWidget = (props) => {
 };
 
 export const HolderListWidget = (props) => {
-  let investors = [
-    {
-      "name": "Cede & Co.",
-      "balance": 264136.6514,
-      "address": "P.O. Box 982903, El Paso, TX"
-    }
-  ];
+  let investors = props.investors;
 
   const [activeItem, setActiveItem] = React.useState(1);
 
@@ -337,9 +331,9 @@ export const HolderListWidget = (props) => {
               <HolderDetailsWidget
                 key={index}
                 nationCode="US"
-                holderName={investor.name}
+                holderName="Hello"
                 quantityAndUnits={investor.balance}
-                percentOwned={0.99}
+                percentOwned={(investor.balance / props.sharesOutstanding)}
                 holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"
               />
             ))}

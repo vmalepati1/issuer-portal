@@ -4,17 +4,17 @@ import { Col, Row } from '@themesberg/react-bootstrap';
 import { HolderListWidget, RegisteredTrendsWidget } from '../components/Widgets';
 
 export default function Investors() {
-    const [ classes, setClasses ] = useState([]);
+    const [ classesInfo, setClassesInfo ] = useState([]);
     const [ investorInfo, setInvestorInfo ] = useState([]);
 
     const assetCode = 'DEMO';
 
     useEffect(() => {
-        fetch(`http://localhost:8080/asset-classes/${assetCode}`)
+        fetch(`http://localhost:8080/asset-class-data/${assetCode}`)
             .then(results => results.json())
             .then(data => {
                 // console.log(data);
-                setClasses(data);
+                setClassesInfo(data);
             })
             .catch(error => {
                 console.error(error);
@@ -22,7 +22,7 @@ export default function Investors() {
     }, []);
 
     useEffect(() => {
-        const promises = classes.map(assetClass => {
+        const promises = classesInfo.map(assetClass => {
             return fetch(`http://localhost:8080/get-top-investors/${assetClass.code}`)
                 .then(results => {
                     if (!results.ok) {
@@ -35,6 +35,7 @@ export default function Investors() {
                 })
                 .catch(error => {
                     console.error(error);
+                    setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, null]);
                 });
         });
         
@@ -42,27 +43,36 @@ export default function Investors() {
             .catch(error => {
                 console.error(error);
             });
-    }, [classes]);
+    }, [classesInfo]);
 
     return (
         <>
-            { investorInfo.map((investorData, index) => {
-                return (
-                    <div key={index}>
-                        <Row className="mb-3">
-                            <Col>
-                                <HolderListWidget class="A">
-                                </HolderListWidget>
-                            </Col>
+            { classesInfo.map((classInfo, index) => {
+                const investorData = investorInfo[index] || [];
 
-                            <Col>
-                                <RegisteredTrendsWidget>
-                                </RegisteredTrendsWidget>
-                            </Col>
-                        </Row>
-                    </div>
-            );
-        })}
+                if (investorData) {
+                    return (
+                            <Row className="mb-3" key={index}>
+                                <Col>
+                                    <HolderListWidget investors={investorData} 
+                                                        class={classInfo.class}
+                                                        sharesOutstanding={classInfo.stats.outstandingShares}>
+                                    </HolderListWidget>
+                                </Col>
+
+                                <Col>
+                                    <RegisteredTrendsWidget>
+                                    </RegisteredTrendsWidget>
+                                </Col>
+                            </Row>
+                        );
+                } else {
+                    return (
+                        <>
+                        </>
+                    );
+                }
+            })}
         </>
     );
 };
