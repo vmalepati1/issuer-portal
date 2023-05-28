@@ -20,6 +20,8 @@ app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
 
             let stats;
 
+            // console.log(stock.code);
+
             // TODO: Fix below
             try {
                 stats = await getAssetStats(assetTOML, stock.code);
@@ -39,56 +41,82 @@ app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
     }
 });
 
+app.get('/asset-classes/:assetCode', cors(), async (req, res) => {
+    try {
+        let response = [];
+        
+        const assetTOML = await getAssetTOML(req.params.assetCode);
+
+        const stocks = assetTOML.STOCKS;
+
+        for (let i in stocks) {
+            let stock = stocks[i];
+
+            response.push({ class: stock.class, code: stock.code });
+        }
+
+        res.send(JSON.parse(JSON.stringify(response)));
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('Something went wrong');
+    }
+});
+
 app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
-    let issuer = await getAssetIssuer(req.params.assetCode);
+    try {
+        let issuer = await getAssetIssuer(req.params.assetCode);
 
-    let requestAddr = await getAssetAccountsAddress(req.params.assetCode, issuer);
+        let requestAddr = await getAssetAccountsAddress(req.params.assetCode, issuer);
 
-    let ledger = await fetch(requestAddr);
-    let ledgerJSON = await ledger.json();
-    let ledgerBalances = [];
+        let ledger = await fetch(requestAddr);
+        let ledgerJSON = await ledger.json();
+        let ledgerBalances = [];
 
-    while (ledgerJSON._embedded.records.length > 0) {
-        for (let i in ledgerJSON._embedded.records) {
-            let accounts = ledgerJSON._embedded.records[i];
-            let account = accounts.id;
+        while (ledgerJSON._embedded.records.length > 0) {
+            for (let i in ledgerJSON._embedded.records) {
+                let accounts = ledgerJSON._embedded.records[i];
+                let account = accounts.id;
 
-            for (let b in accounts.balances) {
-                let balances = accounts.balances[b];
+                for (let b in accounts.balances) {
+                    let balances = accounts.balances[b];
 
-                if (!('asset_code' in balances) || !('asset_issuer' in balances)) {
-                    continue;
-                }
-
-                if (balances.asset_code == req.params.assetCode 
-                    && balances.asset_issuer == issuer) {
-                    let balance = parseFloat(balances.balance);
-                    
-                    if (balance > 0) {
-                        ledgerBalances.push({account_id: account, balance: balance});
+                    if (!('asset_code' in balances) || !('asset_issuer' in balances)) {
+                        continue;
                     }
 
-                    break;
+                    if (balances.asset_code == req.params.assetCode 
+                        && balances.asset_issuer == issuer) {
+                        let balance = parseFloat(balances.balance);
+                        
+                        if (balance > 0) {
+                            ledgerBalances.push({account_id: account, balance: balance});
+                        }
+
+                        break;
+                    }
                 }
             }
+
+            ledgerJSON = await getNextLedgerJSON(ledgerJSON);
         }
 
-        ledgerJSON = await getNextLedgerJSON(ledgerJSON);
+        ledgerBalances.sort((a, b) => {
+            if (a.balance < b.balance) {
+                return 1;
+            }
+
+            if (a.balance > b.balance) {
+                return -1;
+            }
+
+            return 0;
+        });
+
+        res.send(ledgerBalances);
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('Something went wrong');
     }
-
-    ledgerBalances.sort((a, b) => {
-        if (a.balance < b.balance) {
-            return 1;
-        }
-
-        if (a.balance > b.balance) {
-            return -1;
-        }
-
-        return 0;
-    });
-
-    res.send(ledgerBalances);
 });
 
 async function getAssetStats(assetTOML, assetCode) {

@@ -240,7 +240,7 @@ const HolderDetailsWidget = (props) => {
           <Row className="text-right">
             <Col>
               <label>{props.quantityAndUnits}</label>
-              <label class="ms-3 bold-name">{props.percentOwned}</label>
+              <label class="ms-3 bold-name">{(props.percentOwned * 100).toFixed(3)}%</label>
               <button type="button" class="btn px-1 py-0">
                 <FontAwesomeIcon icon={faExternalLinkAlt}/>
               </button>
@@ -257,11 +257,30 @@ const HolderDetailsWidget = (props) => {
 };
 
 export const HolderListWidget = (props) => {
-  const [activeItem, setActiveItem] = React.useState(2);
+  let investors = [
+    {
+      "name": "Cede & Co.",
+      "balance": 264136.6514,
+      "address": "P.O. Box 982903, El Paso, TX"
+    }
+  ];
 
-  const totalPages = 5;
+  const [activeItem, setActiveItem] = React.useState(1);
+
+  const investorsPerPage = 9;
+  const totalPages = Math.ceil(investors.length / investorsPerPage);
   const size = "md";
   const disablePrev = false;
+
+  let groupedInvestors = [];
+
+  for (let i = 0; i < totalPages; i++) {
+    let startIndex = i * investorsPerPage;
+    let endIndex = startIndex + investorsPerPage;
+    let pageInvestors = investors.slice(startIndex, endIndex);
+
+    groupedInvestors.push(pageInvestors);
+  }
 
   const onPrevItem = () => {
     const prevActiveItem = activeItem === 1 ? activeItem : activeItem - 1;
@@ -314,13 +333,17 @@ export const HolderListWidget = (props) => {
 
         <Card.Body>
           <div className="d-block">
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
-            <HolderDetailsWidget nationCode="US" holderName="Cede & Co." quantityAndUnits="264,136.65145 DEMO" percentOwned="81.223%" holderAddress="P.O. Box 982903, El Paso, TX 79998-2903, United States"></HolderDetailsWidget>
+            {groupedInvestors[activeItem - 1]?.map((investor, index) => (
+              <HolderDetailsWidget
+                key={index}
+                nationCode="US"
+                holderName={investor.name}
+                quantityAndUnits={investor.balance}
+                percentOwned={0.99}
+                holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"
+              />
+            ))}
+
             <Pagination size={size} className="mt-3 pagination justify-content-center">
               <Pagination.Prev disabled={disablePrev} onClick={onPrevItem}>Previous</Pagination.Prev>
               {items}
