@@ -136,7 +136,7 @@ async function getActivity(assetCode) {
 
     const transfersEndpoint = await getTransfersAddress(assetCode, issuer);
 
-    console.log(transfersEndpoint);
+    // console.log(transfersEndpoint);
 
     const transfersResp = await fetch(transfersEndpoint);
 
@@ -175,7 +175,8 @@ async function getActivity(assetCode) {
             if (trade.base_is_seller) {
                 trades.push({ total_base: trade.base_amount,
                               total_usd: trade.counter_amount,
-                              price_per_share: trade.price.n / trade.price.d });
+                              price_per_share: trade.price.n / trade.price.d,
+                              timestamp: trade.ledger_close_time });
             }
         }
     }
