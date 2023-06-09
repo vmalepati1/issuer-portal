@@ -4,7 +4,7 @@ const app = express();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
     fetch(...args));
 const toml = require('toml');
-const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH } = require('./globals');
+const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS } = require('./globals');
 const { response } = require('express');
 
 app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
@@ -118,6 +118,75 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
         res.status(500).send('Something went wrong');
     }
 });
+
+app.get('/get-activity/:assetCode', cors(), async (req, res) => {
+    try {
+        let activity = await getActivity(req.params.assetCode);
+
+        res.send(activity);
+    } catch(err) {
+        console.log(err);
+        res.status(500).send('Something went wrong');
+    }
+});
+
+async function getActivity(assetCode) {
+    // let issuer = await getAssetIssuer(assetCode);
+    let issuer = "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA";
+
+    const transfersEndpoint = await getTransfersAddress(assetCode, issuer);
+
+    console.log(transfersEndpoint);
+
+    const transfersResp = await fetch(transfersEndpoint);
+
+    let transfersJSON = await transfersResp.json();
+
+    let transfers = [];
+
+    for (let i in transfersJSON._embedded.records) {
+        let record = transfersJSON._embedded.records[i];
+
+        transfers.push({from: record.from, to: record.to, 
+                        amount: record.amount, timestamp: record.ts});
+    }
+
+    let trades = [];
+
+    for (let i in USD_ASSETS) {
+        let usdAsset = USD_ASSETS[i];
+
+        let usdType = usdAsset.type;
+        let usdCode = usdAsset.code;
+        let usdIssuer = usdAsset.issuer;
+
+        let tradesEndpoint = "https://horizon.stellar.org/trades?base_asset_type=credit_alphanum4&base_asset_issuer=" +
+                                issuer + "&base_asset_code=" + assetCode + 
+                                "&counter_asset_type=" + usdType + "&counter_asset_issuer=" + usdIssuer + 
+                                "&counter_asset_code=" + usdCode + "&limit=200&order=desc";
+
+        let tradesResp = await fetch(tradesEndpoint);   
+        
+        let tradesJSON = await tradesResp.json();
+
+        for (let j in tradesJSON._embedded.records) {
+            let trade = tradesJSON._embedded.records[j];
+
+            if (trade.base_is_seller) {
+                trades.push({ total_base: trade.base_amount,
+                              total_usd: trade.counter_amount,
+                              price_per_share: trade.price.n / trade.price.d });
+            }
+        }
+    }
+
+    return { transfers: transfers, trades: trades };
+}
+
+async function getTransfersAddress(assetCode, issuer) {
+    return 'https://api.stellar.expert/api/explorer/public/payments?asset=' + 
+                assetCode + '-' + issuer + '&order=desc&limit=200';
+}
 
 async function getAssetStats(assetTOML, assetCode) {
     let sharesInDTC = await getFederationResolvedBalance('cede*blocktransfer.io', assetCode);
