@@ -144,11 +144,13 @@ async function getActivity(assetCode) {
 
     let transfers = [];
 
-    for (let i in transfersJSON._embedded.records) {
-        let record = transfersJSON._embedded.records[i];
-
-        transfers.push({from: record.from, to: record.to, 
-                        amount: record.amount, timestamp: record.ts});
+    if (transfersJSON._embedded) {
+        for (let i in transfersJSON._embedded.records) {
+            let record = transfersJSON._embedded.records[i];
+    
+            transfers.push({from: record.from, to: record.to, 
+                            amount: record.amount, timestamp: record.ts});
+        }
     }
 
     let trades = [];
@@ -169,14 +171,18 @@ async function getActivity(assetCode) {
         
         let tradesJSON = await tradesResp.json();
 
-        for (let j in tradesJSON._embedded.records) {
-            let trade = tradesJSON._embedded.records[j];
-
-            if (trade.base_is_seller) {
-                trades.push({ total_base: trade.base_amount,
-                              total_usd: trade.counter_amount,
-                              price_per_share: trade.price.n / trade.price.d,
-                              timestamp: trade.ledger_close_time });
+        if (tradesJSON._embedded) {
+            for (let j in tradesJSON._embedded.records) {
+                let trade = tradesJSON._embedded.records[j];
+    
+                if (trade.base_is_seller) {
+                    trades.push({ from: trade.base_account,
+                                  to: trade.counter_account,
+                                  total_base: trade.base_amount,
+                                  total_usd: trade.counter_amount,
+                                  price_per_share: trade.price.n / trade.price.d,
+                                  timestamp: trade.ledger_close_time });
+                }
             }
         }
     }
