@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, 
@@ -12,6 +11,7 @@ import { faDesktop, faMobileAlt, faTabletAlt } from '@fortawesome/free-solid-svg
 import { Badge } from '@themesberg/react-bootstrap';
 import { Table } from '@themesberg/react-bootstrap';
 import collapse from "bootstrap/js/src/collapse";
+import useGroupedPagination from "./GroupedPagination";
 import { chunkArray } from "../utils";
 
 const CapitalBreakdownStat = (props) => {
@@ -259,47 +259,10 @@ const HolderDetailsWidget = (props) => {
 export const HolderListWidget = (props) => {
   let investors = props.investors;
 
-  const [activeItem, setActiveItem] = React.useState(1);
+  const { activeItem, onPrevItem, onNextItem, groupedItems, paginationItems } = useGroupedPagination(investors, 9);
 
-  const investorsPerPage = 9;
-  const totalPages = Math.ceil(investors.length / investorsPerPage);
   const size = "md";
   const disablePrev = false;
-
-  let groupedInvestors = [];
-
-  for (let i = 0; i < totalPages; i++) {
-    let startIndex = i * investorsPerPage;
-    let endIndex = startIndex + investorsPerPage;
-    let pageInvestors = investors.slice(startIndex, endIndex);
-
-    groupedInvestors.push(pageInvestors);
-  }
-
-  const onPrevItem = () => {
-    const prevActiveItem = activeItem === 1 ? activeItem : activeItem - 1;
-    setActiveItem(prevActiveItem);
-  };
-
-  const onNextItem = (totalPages) => {
-    const nextActiveItem = activeItem === totalPages ? activeItem : activeItem + 1;
-    setActiveItem(nextActiveItem);
-  };
-
-  const items = [];
-  for (let number = 1; number <= totalPages; number++) {
-    const isItemActive = activeItem === number;
-
-    const handlePaginationChange = () => {
-      setActiveItem(number);
-    };
-
-    items.push(
-      <Pagination.Item active={isItemActive} key={number} onClick={handlePaginationChange}>
-        {number}
-      </Pagination.Item>
-    );
-  };
 
   return (
     <>
@@ -327,21 +290,23 @@ export const HolderListWidget = (props) => {
 
         <Card.Body>
           <div className="d-block">
-            {groupedInvestors[activeItem - 1]?.map((investor, index) => (
-              <HolderDetailsWidget
-                key={index}
-                nationCode="US"
-                holderName="Hello"
-                quantityAndUnits={investor.balance}
-                percentOwned={(investor.balance / props.sharesOutstanding)}
-                holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"
-              />
-            ))}
+            {
+              groupedItems.map((item, index) => (
+                <HolderDetailsWidget
+                  key={index}
+                  nationCode="US"
+                  holderName="Hello"
+                  quantityAndUnits={item.balance}
+                  percentOwned={(item.balance / props.sharesOutstanding)}
+                  holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"
+                />
+              ))
+            }
 
             <Pagination size={size} className="mt-3 pagination justify-content-center">
               <Pagination.Prev disabled={disablePrev} onClick={onPrevItem}>Previous</Pagination.Prev>
-              {items}
-              <Pagination.Next onClick={() => onNextItem(totalPages)}>Next</Pagination.Next>
+              {paginationItems}
+              <Pagination.Next onClick={onNextItem}>Next</Pagination.Next>
             </Pagination>
           </div>
         </Card.Body>
@@ -426,7 +391,17 @@ export const RegisteredTrendsWidget = (props) => {
 }
 
 export const ActivityWidget = (props) => {
+  let activity = [
+    {"asset":"DEMO",
+     "to":"GBXQUJBEDX5TYLJ6D5BGJZFLYF5GZVGXLWA2ZORS5OIA7H6B5O3MHMTP",
+     "total_base":"88008.3193547",
+     "total_usd":"55.2974082",
+     "price_per_share":0.0006283202384212657,
+     "timestamp":"2023-07-13T20:32:55Z"}
+  ];
+
   return (
+    
     <>
       <Card border="light" className="shadow-sm shadow-sm">
         <Card.Header>

@@ -6,6 +6,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
 const toml = require('toml');
 const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS } = require('./globals');
 const { response } = require('express');
+const puppeteer = require('puppeteer');
 
 app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
     try {
@@ -131,27 +132,27 @@ app.get('/get-activity/:assetCode', cors(), async (req, res) => {
 });
 
 async function getActivity(assetCode) {
-    // let issuer = await getAssetIssuer(assetCode);
-    let issuer = "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA";
+    let issuer = 'GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA';
 
-    const transfersEndpoint = await getTransfersAddress(assetCode, issuer);
+    // Transfers endpoint is broken for now
+    // const transfersEndpoint = await getTransfersAddress(assetCode, issuer);
 
-    // console.log(transfersEndpoint);
+    // // console.log(transfersEndpoint);
 
-    const transfersResp = await fetch(transfersEndpoint);
+    // const transfersResp = await fetch(transfersEndpoint);
 
-    let transfersJSON = await transfersResp.json();
+    // let transfersJSON = await transfersResp.json();
 
-    let transfers = [];
+    // let transfers = [];
 
-    if (transfersJSON._embedded) {
-        for (let i in transfersJSON._embedded.records) {
-            let record = transfersJSON._embedded.records[i];
+    // if (transfersJSON._embedded) {
+    //     for (let i in transfersJSON._embedded.records) {
+    //         let record = transfersJSON._embedded.records[i];
     
-            transfers.push({from: record.from, to: record.to, 
-                            amount: record.amount, timestamp: record.ts});
-        }
-    }
+    //         transfers.push({from: record.from, to: record.to, 
+    //                         amount: record.amount, timestamp: record.ts});
+    //     }
+    // }
 
     let trades = [];
 
@@ -176,7 +177,8 @@ async function getActivity(assetCode) {
                 let trade = tradesJSON._embedded.records[j];
     
                 if (trade.base_is_seller) {
-                    trades.push({ from: trade.base_account,
+                    trades.push({ asset: assetCode,
+                                  from: trade.base_account,
                                   to: trade.counter_account,
                                   total_base: trade.base_amount,
                                   total_usd: trade.counter_amount,
@@ -187,7 +189,7 @@ async function getActivity(assetCode) {
         }
     }
 
-    return { transfers: transfers, trades: trades };
+    return { transfers: [], trades: trades };
 }
 
 async function getTransfersAddress(assetCode, issuer) {
@@ -381,6 +383,8 @@ app.use('/login', async (req, res) => {
 //     pendingRequests++;
 //     next();
 //   };
+
+
 
 app.use(cors());
 // app.use(trackRequests);
