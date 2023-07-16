@@ -4,9 +4,10 @@ const app = express();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
     fetch(...args));
 const toml = require('toml');
-const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS } = require('./globals');
+const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS, MICR_TXT } = require('./globals');
 const { response } = require('express');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
     try {
@@ -122,7 +123,7 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
 
 app.get('/get-activity/:assetCode', cors(), async (req, res) => {
     try {
-        let activity = await getActivity(req.params.assetCode);
+        let activity = await getTransactionsForAsset(req.params.assetCode);
 
         res.send(activity);
     } catch(err) {
@@ -130,72 +131,6 @@ app.get('/get-activity/:assetCode', cors(), async (req, res) => {
         res.status(500).send('Something went wrong');
     }
 });
-
-async function getActivity(assetCode) {
-    let issuer = 'GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA';
-
-    // Transfers endpoint is broken for now
-    // const transfersEndpoint = await getTransfersAddress(assetCode, issuer);
-
-    // // console.log(transfersEndpoint);
-
-    // const transfersResp = await fetch(transfersEndpoint);
-
-    // let transfersJSON = await transfersResp.json();
-
-    // let transfers = [];
-
-    // if (transfersJSON._embedded) {
-    //     for (let i in transfersJSON._embedded.records) {
-    //         let record = transfersJSON._embedded.records[i];
-    
-    //         transfers.push({from: record.from, to: record.to, 
-    //                         amount: record.amount, timestamp: record.ts});
-    //     }
-    // }
-
-    let trades = [];
-
-    for (let i in USD_ASSETS) {
-        let usdAsset = USD_ASSETS[i];
-
-        let usdType = usdAsset.type;
-        let usdCode = usdAsset.code;
-        let usdIssuer = usdAsset.issuer;
-
-        let tradesEndpoint = "https://horizon.stellar.org/trades?base_asset_type=credit_alphanum4&base_asset_issuer=" +
-                                issuer + "&base_asset_code=" + assetCode + 
-                                "&counter_asset_type=" + usdType + "&counter_asset_issuer=" + usdIssuer + 
-                                "&counter_asset_code=" + usdCode + "&limit=200&order=desc";
-
-        let tradesResp = await fetch(tradesEndpoint);   
-        
-        let tradesJSON = await tradesResp.json();
-
-        if (tradesJSON._embedded) {
-            for (let j in tradesJSON._embedded.records) {
-                let trade = tradesJSON._embedded.records[j];
-    
-                if (trade.base_is_seller) {
-                    trades.push({ asset: assetCode,
-                                  from: trade.base_account,
-                                  to: trade.counter_account,
-                                  total_base: trade.base_amount,
-                                  total_usd: trade.counter_amount,
-                                  price_per_share: trade.price.n / trade.price.d,
-                                  timestamp: trade.ledger_close_time });
-                }
-            }
-        }
-    }
-
-    return { transfers: [], trades: trades };
-}
-
-async function getTransfersAddress(assetCode, issuer) {
-    return 'https://api.stellar.expert/api/explorer/public/payments?asset=' + 
-                assetCode + '-' + issuer + '&order=desc&limit=200';
-}
 
 async function getAssetStats(assetTOML, assetCode) {
     let sharesInDTC = await getFederationResolvedBalance('cede*blocktransfer.io', assetCode);
@@ -341,8 +276,13 @@ async function getAssetAccountsAddress(queryAsset, issuer) {
             + ':' + issuer + '&' + MAX_SEARCH;
 }
 
+async function formatRawHref(href) {
+    return href.replace(/%3A/g, ":").replace(/\u0026/g, "&")
+        .replace("{?cursor,limit,order}", "?" + MAX_SEARCH);
+}
+
 async function getNextLedgerJSON(ledgerJSON) {
-    let nextAddr = ledgerJSON._links.next.href.replace(/%3A/g, ":").replace(/\u0026/g, "&");
+    let nextAddr = await formatRawHref(ledgerJSON._links.next.href);
 
     let response = await fetch(nextAddr);
 
@@ -355,6 +295,180 @@ async function getNextLedgerJSON(ledgerJSON) {
     } else {
         return responseJSON;
     }
+}
+
+async function getAllPublicKeys() {
+    return new Promise((resolve, reject) => {
+        let publicKeys = [];
+        const stream = fs.createReadStream(MICR_TXT, { encoding: 'utf8' });
+        let lineNumber = 1;
+    
+        stream.on('data', (data) => {
+          const lines = data.split('\n');
+    
+          lines.forEach((line) => {
+            if (lineNumber > 1) {
+              let account = line.split('|');
+    
+              if (account[0].length > 0) {
+                publicKeys.push(account[0]);
+              }
+            }
+    
+            lineNumber++;
+          });
+        });
+    
+        stream.on('end', () => {
+            // console.log(publicKeys);
+          resolve(publicKeys); // Resolve the Promise with publicKeys when data processing is complete
+        });
+    
+        stream.on('error', (err) => {
+          reject(err); // Reject the Promise if there is an error reading the file
+        });
+    });
+}
+
+async function requestAssetAccounts(queryAsset) {
+    let currPublicKeys = [];
+
+    let issuer = await getAssetIssuer(queryAsset);
+
+    let url = HORIZON_INST + "/accounts?asset=" 
+        + queryAsset + ":" + issuer + "&" + MAX_SEARCH;
+    
+    let response = await fetch(url);
+
+    let responseJSON = await response.json();
+
+    return responseJSON;
+}
+
+async function debugGetAllCurrPublicKeysForAsset(queryAsset) {
+    let currPublicKeys = [];
+
+    let ledger = await requestAssetAccounts(queryAsset);
+
+    let records = ledger._embedded.records;
+
+    while (records.length > 0) {
+        for (let i in records) {
+            let accounts = records[i];
+
+            currPublicKeys.push(accounts.id);
+        }
+
+        ledger = await getNextLedgerJSON(ledger);
+
+        records = ledger._embedded.records;
+    }
+
+    return currPublicKeys;
+}
+
+async function getPaymentsLedger(address) {
+    const accountDataResp = await fetch(HORIZON_INST + '/accounts/' + address);
+
+    let accountDataJSON = await accountDataResp.json();
+
+    let paymentsLink = await formatRawHref(accountDataJSON._links.payments.href);
+
+    console.log(paymentsLink);
+
+    let payments = await fetch(paymentsLink);
+    
+    let paymentsJSON = await payments.json();
+
+    return paymentsJSON;
+}
+
+async function getTransactionsForAsset(queryAsset) {
+    let transactionsForAssets = {};
+
+    let issuer = await getAssetIssuer(queryAsset);
+
+    let allPublicKeys = await debugGetAllCurrPublicKeysForAsset(queryAsset);
+
+    for (let i in allPublicKeys) {
+        let addresses = allPublicKeys[i];
+
+        let paymentsLedger = await getPaymentsLedger(addresses);
+
+        let paymentRecords = paymentsLedger._embedded.records;
+
+        while (paymentRecords.length > 0) {
+            for (let j in paymentRecords) {
+                let payments = paymentRecords[j];
+
+                if (payments.type == "payment" &&
+                    payments.asset_type != "native" &&
+                    BT_ISSUERS.includes(payments.asset_issuer) &&
+                    payments.asset_code == queryAsset) {
+
+                    transactionsForAssets[payments.paging_token.split('-')[0]] = {
+                        "type": "transfer",
+                        "txHash": payments.transaction_hash,
+                        "amount": parseFloat(payments.amount),
+                        "from": payments.from,
+                        "to": payments.to,
+                        "timestamp": payments.created_at
+                    };
+                }
+            }
+
+            paymentsLedger = await getNextLedgerJSON(paymentsLedger);
+
+            paymentRecords = paymentsLedger._embedded.records;
+        }
+    }
+
+    for (let i in USD_ASSETS) {
+        let usdAsset = USD_ASSETS[i];
+
+        let usdType = usdAsset.type;
+        let usdCode = usdAsset.code;
+        let usdIssuer = usdAsset.issuer;
+
+        let tradesEndpoint = "https://horizon.stellar.org/trades?base_asset_type=credit_alphanum4&base_asset_issuer=" +
+                                issuer + "&base_asset_code=" + queryAsset + 
+                                "&counter_asset_type=" + usdType + "&counter_asset_issuer=" + usdIssuer + 
+                                "&counter_asset_code=" + usdCode + "&limit=200&order=desc";
+
+        let tradesResp = await fetch(tradesEndpoint);   
+        
+        let tradesJSON = await tradesResp.json();
+
+        if (tradesJSON._embedded) {
+            let tradeRecords = tradesJSON._embedded.records;
+
+            while (tradeRecords.length > 0) {
+                for (let j in tradeRecords) {
+                    let trade = tradesJSON._embedded.records[j];
+        
+                    if (trade.base_is_seller) {
+                        transactionsForAssets[trade.paging_token.split('-')[0]] = {
+                            type: "trade",
+                            operationID: trade.id.split('-')[0],
+                            asset: assetCode,
+                            from: trade.base_account,
+                            to: trade.counter_account,
+                            total_base: trade.base_amount,
+                            total_usd: trade.counter_amount,
+                            price_per_share: trade.price.n / trade.price.d,
+                            timestamp: trade.ledger_close_time
+                        };
+                    }
+                }
+
+                tradesJSON = await getNextLedgerJSON(tradesJSON);
+
+                tradeRecords = tradesJSON._embedded.records;
+            }
+        }
+    }
+
+    return transactionsForAssets;
 }
 
 app.use('/login', async (req, res) => {
@@ -384,9 +498,9 @@ app.use('/login', async (req, res) => {
 //     next();
 //   };
 
-
-
 app.use(cors());
 // app.use(trackRequests);
+
+requestAssetAccounts('DEMO');
 
 app.listen(8080, () => console.log('API is running on port 8080'));
