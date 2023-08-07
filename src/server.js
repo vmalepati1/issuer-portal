@@ -374,17 +374,17 @@ async function getPaymentsLedger(address) {
 
     let paymentsLink = await formatRawHref(accountDataJSON._links.payments.href);
 
-    console.log(paymentsLink);
+    // console.log(paymentsLink);
 
     let payments = await fetch(paymentsLink);
-    
+
     let paymentsJSON = await payments.json();
 
     return paymentsJSON;
 }
 
 async function getTransactionsForAsset(queryAsset) {
-    let transactionsForAssets = {};
+    let transactionsForAssets = [];
 
     let issuer = await getAssetIssuer(queryAsset);
 
@@ -406,14 +406,14 @@ async function getTransactionsForAsset(queryAsset) {
                     BT_ISSUERS.includes(payments.asset_issuer) &&
                     payments.asset_code == queryAsset) {
 
-                    transactionsForAssets[payments.paging_token.split('-')[0]] = {
+                    transactionsForAssets.push({
                         "type": "transfer",
                         "txHash": payments.transaction_hash,
                         "amount": parseFloat(payments.amount),
                         "from": payments.from,
                         "to": payments.to,
                         "timestamp": payments.created_at
-                    };
+                    });
                 }
             }
 
@@ -447,7 +447,7 @@ async function getTransactionsForAsset(queryAsset) {
                     let trade = tradesJSON._embedded.records[j];
         
                     if (trade.base_is_seller) {
-                        transactionsForAssets[trade.paging_token.split('-')[0]] = {
+                        transactionsForAssets.push({
                             type: "trade",
                             operationID: trade.id.split('-')[0],
                             asset: assetCode,
@@ -457,7 +457,7 @@ async function getTransactionsForAsset(queryAsset) {
                             total_usd: trade.counter_amount,
                             price_per_share: trade.price.n / trade.price.d,
                             timestamp: trade.ledger_close_time
-                        };
+                        });
                     }
                 }
 
@@ -467,6 +467,10 @@ async function getTransactionsForAsset(queryAsset) {
             }
         }
     }
+
+    transactionsForAssets.sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+    });
 
     return transactionsForAssets;
 }

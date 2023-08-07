@@ -4,8 +4,7 @@ import { ActivityWidget, InsightsWidget } from '../components/Widgets';
 
 export default function Activity() {
     const [ classesInfo, setClassesInfo ] = useState([]);
-    const [ transfers, setTransfers ] = useState([]);
-    const [ trades, setTrades ] = useState([]);
+    const [ activityList, setActivityList ] = useState([]);
 
     const assetCode = 'DEMO';
     
@@ -30,12 +29,12 @@ export default function Activity() {
                     }
                     return results.json();
                 })
-                .then(investors => {
-                    // setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, investors]);
+                .then(activityList => {
+                    setActivityList(prevActivityList => [...prevActivityList, activityList]);
                 })
                 .catch(error => {
                     console.error(error);
-                    // setInvestorInfo(prevInvestorInfo => [...prevInvestorInfo, null]);
+                    setActivityList(prevActivityList => [...prevActivityList, null]);
                 });
         });
         
@@ -46,16 +45,31 @@ export default function Activity() {
     }, [classesInfo]);
 
     return (
-        <Row>
-            <Col>
-                <ActivityWidget>
-                </ActivityWidget>
-            </Col>
+        <>
+            { classesInfo.map((classInfo, index) => {
+                const activity = activityList[index] || [];
 
-            <Col>
-                <InsightsWidget>
-                </InsightsWidget>
-            </Col>
-        </Row>
+                if (activity) {
+                    return (
+                            <Row>
+                                <Col>
+                                    <ActivityWidget activity={activity}>
+                                    </ActivityWidget>
+                                </Col>
+                    
+                                <Col>
+                                    <InsightsWidget>
+                                    </InsightsWidget>
+                                </Col>
+                            </Row>
+                        );
+                } else {
+                    return (
+                        <>
+                        </>
+                    );
+                }
+            })}
+        </>
     );
 };

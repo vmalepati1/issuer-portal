@@ -391,21 +391,22 @@ export const RegisteredTrendsWidget = (props) => {
 }
 
 export const ActivityWidget = (props) => {
-  let activity = [
-    {"asset":"DEMO",
-     "to":"GBXQUJBEDX5TYLJ6D5BGJZFLYF5GZVGXLWA2ZORS5OIA7H6B5O3MHMTP",
-     "total_base":"88008.3193547",
-     "total_usd":"55.2974082",
-     "price_per_share":0.0006283202384212657,
-     "timestamp":"2023-07-13T20:32:55Z"}
-  ];
+  let activity = props.activity;
+  // let activity = [
+  //   {"asset":"DEMO",
+  //    "to":"GBXQUJBEDX5TYLJ6D5BGJZFLYF5GZVGXLWA2ZORS5OIA7H6B5O3MHMTP",
+  //    "total_base":"88008.3193547",
+  //    "total_usd":"55.2974082",
+  //    "price_per_share":0.0006283202384212657,
+  //    "timestamp":"2023-07-13T20:32:55Z"}
+  // ];
 
   return (
     
     <>
       <Card border="light" className="shadow-sm shadow-sm">
         <Card.Header>
-          <div class="d-flex justify-content-between">
+          <div className="d-flex justify-content-between">
             <div className="align-self-center">
               <h4 className="center-block text-center p-0 m-0">Class A Stock</h4>
             </div>
@@ -441,17 +442,32 @@ export const ActivityWidget = (props) => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border-0 fw-bold">
-                  Apr. 23, 2023
-                </td>
-                <td className="border-0">Mike Smith transfered 31.57 DEMO to Charlie Mark</td>
-                <td className="border-0">
-                  <button type="button" class="btn px-1 py-0">
-                    <FontAwesomeIcon icon={faExternalLinkAlt}/>
-                  </button>
-                </td>
-              </tr>
+
+              { activity.map((item, index) => {
+                const formattedDate = new Date(item.timestamp).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                });
+
+                return (
+                  <tr key={index}>
+                    <td className="border-0 fw-bold">
+                      {formattedDate}
+                    </td>
+                    <td className="border-0">
+                        {item.type == 'transfer'
+                        ? `${item.from} transferred ${item.amount} DEMO to ${item.to}`
+                        : 'Trade transaction'}
+                    </td>
+                    <td className="border-0">
+                      <button type="button" class="btn px-1 py-0">
+                        <FontAwesomeIcon icon={faExternalLinkAlt}/>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
         </Card.Body>
