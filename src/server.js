@@ -288,13 +288,7 @@ async function getNextLedgerJSON(ledgerJSON) {
 
     let responseJSON = await response.json();
 
-    if (Object.keys(responseJSON).length 
-            && responseJSON.hasOwnProperty("status") 
-            && !responseJSON.status) {
-        return await getNextLedgerJSON(ledgerJSON);
-    } else {
-        return responseJSON;
-    }
+    return responseJSON;
 }
 
 async function getAllPublicKeys() {
@@ -384,12 +378,17 @@ async function getPaymentsLedger(address) {
 }
 
 async function getTransactionsForAsset(queryAsset) {
-    let transactionsForAssets = [];
+    let transactionsForAssets = {};
 
     let issuer = await getAssetIssuer(queryAsset);
 
     let allPublicKeys = await debugGetAllCurrPublicKeysForAsset(queryAsset);
 
+    // Due to the fact that transfers are recorded on both
+    // the source account and destination account ledgers,
+    // transfers are typically double counted. That is why
+    // transactionsForAssets is a dictionary with the transaction
+    // hash as the key to prevent duplicate entries
     for (let i in allPublicKeys) {
         let addresses = allPublicKeys[i];
 
@@ -406,14 +405,14 @@ async function getTransactionsForAsset(queryAsset) {
                     BT_ISSUERS.includes(payments.asset_issuer) &&
                     payments.asset_code == queryAsset) {
 
-                    transactionsForAssets.push({
+                    transactionsForAssets[payments.transaction_hash] = {
                         "type": "transfer",
                         "txHash": payments.transaction_hash,
                         "amount": parseFloat(payments.amount),
                         "from": payments.from,
                         "to": payments.to,
                         "timestamp": payments.created_at
-                    });
+                    };
                 }
             }
 
@@ -447,7 +446,9 @@ async function getTransactionsForAsset(queryAsset) {
                     let trade = tradesJSON._embedded.records[j];
         
                     if (trade.base_is_seller) {
-                        transactionsForAssets.push({
+                        let pagingToken = trade.paging_token.split('-')[0];
+
+                        transactionsForAssets[pagingToken] = {
                             type: "trade",
                             operationID: trade.id.split('-')[0],
                             asset: assetCode,
@@ -457,7 +458,7 @@ async function getTransactionsForAsset(queryAsset) {
                             total_usd: trade.counter_amount,
                             price_per_share: trade.price.n / trade.price.d,
                             timestamp: trade.ledger_close_time
-                        });
+                        };
                     }
                 }
 
@@ -468,11 +469,13 @@ async function getTransactionsForAsset(queryAsset) {
         }
     }
 
-    transactionsForAssets.sort((a, b) => {
+    let transactionsList = Object.values(transactionsForAssets);
+
+    transactionsList.sort((a, b) => {
         return new Date(b.timestamp) - new Date(a.timestamp);
     });
 
-    return transactionsForAssets;
+    return transactionsList;
 }
 
 app.use('/login', async (req, res) => {
