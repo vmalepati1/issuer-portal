@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp, faChartArea, faChartBar, faChartLine, 
          faFlagUsa, faFolderOpen, faGlobeEurope, faPaperclip, faUserPlus,
@@ -402,7 +402,6 @@ export const ActivityWidget = (props) => {
   // ];
 
   return (
-    
     <>
       <Card border="light" className="shadow-sm shadow-sm">
         <Card.Header>
@@ -457,11 +456,12 @@ export const ActivityWidget = (props) => {
                     </td>
                     <td className="border-0">
                         {item.type == 'transfer'
-                        ? `${item.from} transferred ${item.amount} DEMO to ${item.to}`
-                        : 'Trade transaction'}
+                        ? `${item.from} transferred ${item.amount} ${item.asset} to ${item.to}`
+                        : `${item.from} sold ${item.total_base} ${item.asset} to ${item.to}`
+                            + ` for $${item.total_usd.toFixed(2)} at $${item.price_per_share.toFixed(2)} per share`}
                     </td>
                     <td className="border-0">
-                      <button type="button" class="btn px-1 py-0">
+                      <button type="button" className="btn px-1 py-0">
                         <FontAwesomeIcon icon={faExternalLinkAlt}/>
                       </button>
                     </td>
@@ -477,16 +477,107 @@ export const ActivityWidget = (props) => {
 }
 
 export const InsightsWidget = (props) => {
+  const [insights, setInsights] = useState({});
+  const [selectedTimeframe, setSelectedTimeframe] = useState('max');
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleTimeframeChange = (timeframe) => {
+    setSelectedTimeframe(timeframe);
+
+    setIsLoading(true);
+
+    return fetch(`http://localhost:8080/get-activity/${props.assetCode}?timeframe=${timeframe}`)
+      .then(results => {
+          if (!results.ok) {
+              throw new Error(results.status);
+          }
+          return results.json();
+      })
+      .then(activityAndStats => {
+          let stats = activityAndStats.stats;
+
+          setInsights(stats);
+          setIsLoading(false);
+      })
+      .catch(error => {
+          console.error(error);
+
+          setInsights(null);
+          setIsLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    handleTimeframeChange('max'); // Default timeframe is max
+  }, []);
+
   return (
     <>
       <Card border="light" className="shadow-sm text-white bg-primary">
         <Card.Header>
           <h4 className="center-block text-center">Insights</h4>
+          <div className="btn-group d-flex justify-content-center" role="group" aria-label="Timeframes">
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'today' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('today')}
+            >
+              Today
+            </button>
+
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'week' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('week')}
+            >
+              Week
+            </button>
+
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'month' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('month')}
+            >
+              Month
+            </button>
+
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'quarter' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('quarter')}
+            >
+              Quarter
+            </button>
+
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'year' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('year')}
+            >
+              Year
+            </button>
+
+            <button
+              className={`btn mx-1 ${selectedTimeframe === 'max' ? 'btn-secondary active' : 'btn-tertiary'}`}
+              style={{ color: 'white' }}
+              onClick={() => handleTimeframeChange('max')}
+            >
+              Max
+            </button>
+          </div>
         </Card.Header>
 
-        <Card.Body>
-          <div className="d-flex">
-            <h5>Transfers over 1 month: 39</h5>
+        <Card.Body className="pt-0">
+          <div>
+            {isLoading ? (
+                <div>Loading...</div>
+              ) : (
+                <>
+                  {/* Display insights data if not loading */}
+                  <h5 className="d-block">{insights.totalTransfers} transfers</h5>
+                  <h5 className="d-block">{insights.totalTrades} trades</h5>
+                </>
+              )}
           </div>
         </Card.Body>
       </Card>

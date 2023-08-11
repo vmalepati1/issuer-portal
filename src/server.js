@@ -123,9 +123,12 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
 
 app.get('/get-activity/:assetCode', cors(), async (req, res) => {
     try {
-        let activity = await getTransactionsForAsset(req.params.assetCode);
+        const assetCode = req.params.assetCode;
+        const timeframe = req.query.timeframe || 'max';
 
-        res.send(activity);
+        let [activity, stats] = await getActivityAndStatsForAsset(assetCode, timeframe);
+
+        res.send({'activity': activity, 'stats': stats});
     } catch(err) {
         console.log(err);
         res.status(500).send('Something went wrong');
@@ -377,17 +380,67 @@ async function getPaymentsLedger(address) {
     return paymentsJSON;
 }
 
-async function getTransactionsForAsset(queryAsset) {
-    let transactionsForAssets = {};
+function checkDateWithinTimeframe(dateInstance, timeframe) {
+    const currentDate = new Date();
+
+    if (timeframe === "today") {
+        const startOfDay = new Date(currentDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        return dateInstance >= startOfDay && dateInstance <= endOfDay;
+    } else if (timeframe === "week") {
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        // dayOfWeek is the numbered day within the week, with Monday being the first day (0)
+        // in other words, monday = 0, tuesday = 1, wednesday = 2, thursday = 3, etc.
+        const dayOfWeek = (date.getDay() - 1 + 7) % 7;
+
+        startOfWeek.setDate(currentDate.getDate() - dayOfWeek);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        return dateInstance >= startOfWeek && dateInstance <= endOfWeek;
+    } else if (timeframe === "month") {
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+        return dateInstance >= startOfMonth && dateInstance <= endOfMonth;
+    } else if (timeframe === "quarter") {
+        const quarter = Math.floor(currentDate.getMonth() / 3);
+        const startOfQuarter = new Date(currentDate.getFullYear(), quarter * 3, 1);
+        const endOfQuarter = new Date(currentDate.getFullYear(), quarter * 3 + 3, 0);
+        endOfQuarter.setHours(23, 59, 59, 999);
+        return dateInstance >= startOfQuarter && dateInstance <= endOfQuarter;
+    } else if (timeframe === "year") {
+        const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+        const endOfYear = new Date(currentDate.getFullYear(), 11, 31);
+        endOfYear.setHours(23, 59, 59, 999);
+        return dateInstance >= startOfYear && dateInstance <= endOfYear;
+    } else if (timeframe === "max") {
+        return true; // No restriction on timeframe
+    }
+
+    return false; // Invalid timeframe
+}
+
+async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
+    let activity = {};
 
     let issuer = await getAssetIssuer(queryAsset);
 
     let allPublicKeys = await debugGetAllCurrPublicKeysForAsset(queryAsset);
 
+    let totalTransfers = 0;
+    let totalTrades = 0;
+
     // Due to the fact that transfers are recorded on both
     // the source account and destination account ledgers,
     // transfers are typically double counted. That is why
-    // transactionsForAssets is a dictionary with the transaction
+    // activity is a dictionary with the transaction
     // hash as the key to prevent duplicate entries
     for (let i in allPublicKeys) {
         let addresses = allPublicKeys[i];
@@ -405,9 +458,18 @@ async function getTransactionsForAsset(queryAsset) {
                     BT_ISSUERS.includes(payments.asset_issuer) &&
                     payments.asset_code == queryAsset) {
 
-                    transactionsForAssets[payments.transaction_hash] = {
+                    let paymentDate = new Date(payments.created_at);
+
+                    // If the transaction was not counted already and is within the timeframe
+                    if (checkDateWithinTimeframe(paymentDate, timeframe)
+                        && !(payments.transaction_hash in activity)) {
+                        totalTransfers++;
+                    }
+
+                    activity[payments.transaction_hash] = {
                         "type": "transfer",
                         "txHash": payments.transaction_hash,
+                        "asset": queryAsset,
                         "amount": parseFloat(payments.amount),
                         "from": payments.from,
                         "to": payments.to,
@@ -448,10 +510,17 @@ async function getTransactionsForAsset(queryAsset) {
                     if (trade.base_is_seller) {
                         let pagingToken = trade.paging_token.split('-')[0];
 
-                        transactionsForAssets[pagingToken] = {
+                        let paymentDate = new Date(trade.ledger_close_time);
+
+                        if (checkDateWithinTimeframe(paymentDate, timeframe)
+                            && !(pagingToken in activity)) {
+                            totalTrades++;
+                        }
+
+                        activity[pagingToken] = {
                             type: "trade",
                             operationID: trade.id.split('-')[0],
-                            asset: assetCode,
+                            asset: queryAsset,
                             from: trade.base_account,
                             to: trade.counter_account,
                             total_base: trade.base_amount,
@@ -469,13 +538,13 @@ async function getTransactionsForAsset(queryAsset) {
         }
     }
 
-    let transactionsList = Object.values(transactionsForAssets);
+    let transactionsList = Object.values(activity);
 
     transactionsList.sort((a, b) => {
         return new Date(b.timestamp) - new Date(a.timestamp);
     });
 
-    return transactionsList;
+    return [transactionsList, { 'totalTransfers': totalTransfers, 'totalTrades': totalTrades }];
 }
 
 app.use('/login', async (req, res) => {

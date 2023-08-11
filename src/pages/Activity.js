@@ -5,6 +5,7 @@ import { ActivityWidget, InsightsWidget } from '../components/Widgets';
 export default function Activity() {
     const [ classesInfo, setClassesInfo ] = useState([]);
     const [ activityList, setActivityList ] = useState([]);
+    const [ insightsList, setInsightsList ] = useState([]);
 
     const assetCode = 'DEMO';
     
@@ -29,12 +30,17 @@ export default function Activity() {
                     }
                     return results.json();
                 })
-                .then(activityList => {
-                    setActivityList(prevActivityList => [...prevActivityList, activityList]);
+                .then(activityAndStats => {
+                    let activity = activityAndStats.activity;
+                    let stats = activityAndStats.stats;
+
+                    setActivityList(prevActivityList => [...prevActivityList, activity]);
+                    setInsightsList(prevInsightsList => [...prevInsightsList, stats]);
                 })
                 .catch(error => {
                     console.error(error);
                     setActivityList(prevActivityList => [...prevActivityList, null]);
+                    setInsightsList(prevInsightsList => [...prevInsightsList, null]);
                 });
         });
         
@@ -48,17 +54,18 @@ export default function Activity() {
         <>
             { classesInfo.map((classInfo, index) => {
                 const activity = activityList[index] || [];
+                const insights = insightsList[index] || [];
 
-                if (activity) {
+                if (activity && insights) {
                     return (
-                            <Row>
+                            <Row key={index}>
                                 <Col>
                                     <ActivityWidget activity={activity}>
                                     </ActivityWidget>
                                 </Col>
                     
                                 <Col>
-                                    <InsightsWidget>
+                                    <InsightsWidget insights={insights} assetCode={classInfo.code}>
                                     </InsightsWidget>
                                 </Col>
                             </Row>
