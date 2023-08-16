@@ -23,6 +23,9 @@ const MICR_DIR = path.join(__dirname, "../../master-identity-catalog-records");
 
 const MICR_TXT = MICR_DIR + "/master-identity-account-mapping.txt";
 
+const BT_API_SERVER = "https://api.blocktransfer.com";
+
 module.exports = { BT_ISSUERS, USD_ASSETS, 
                    HORIZON_INST, MAX_SEARCH, 
-                   STREET_NAME_ACCOUNTS, MICR_TXT };
+                   STREET_NAME_ACCOUNTS, MICR_TXT,
+                   BT_API_SERVER };

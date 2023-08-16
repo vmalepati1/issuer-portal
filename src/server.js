@@ -547,6 +547,30 @@ async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
     return [transactionsList, { 'totalTransfers': totalTransfers, 'totalTrades': totalTrades }];
 }
 
+async function makeAWSRequest() {
+    try {
+        // Create a new API Gateway request object
+        const apigateway = new AWS.ApiGatewayV2({
+          apiVersion: '2018-11-29',
+          region: AWS.config.region,
+        });
+    
+        // Generate an SDK for your API Gateway
+        const sdk = apigateway.getSdk({});
+    
+        // Call the relevant API method
+        const response = await sdk.get( {
+          ApiId: 'YOUR_API_ID', // Replace with your API Gateway API ID
+          StageName: 'your-stage',
+          RouteKey: 'GET /your-resource', // Replace with your route key
+        }).promise();
+    
+        console.log('API Gateway Response:', response);
+      } catch (error) {
+        console.error('Error making GET request:', error);
+      }
+  }
+
 app.use('/login', async (req, res) => {
     res.send({
         token: 'test123'
@@ -577,6 +601,44 @@ app.use('/login', async (req, res) => {
 app.use(cors());
 // app.use(trackRequests);
 
-requestAssetAccounts('DEMO');
-
 app.listen(8080, () => console.log('API is running on port 8080'));
+
+var apigClientFactory = require('aws-api-gateway-client').default;
+var apigClient = apigClientFactory.newClient({
+    invokeUrl:'https://api.blocktransfer.com', // REQUIRED
+    accessKey: process.env.AWS_ACCESS_KEY_ID, // REQUIRED
+    secretKey: process.env.AWS_SECRET_ACCESS_KEY, // REQUIRED
+    sessionToken: '', //OPTIONAL: If you are using temporary credentials you must include the session token
+    region: 'us-east-2', // REQUIRED: The region where the API is deployed.
+    systemClockOffset: 0, // OPTIONAL: An offset value in milliseconds to apply to signing time
+    retries: 4, // OPTIONAL: Number of times to retry before failing. Uses axon-retry plugin.
+    retryCondition: (err) => { // OPTIONAL: Callback to further control if request should be retried.  Uses axon-retry plugin.
+      return err.response && err.response.status === 500;
+    }
+});
+
+
+var pathParams = {
+    query: 'GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7',
+};
+// Template syntax follows url-template https://www.npmjs.com/package/url-template
+var pathTemplate = '/PII/{query}'
+var method = 'GET';
+var additionalParams = {
+    headers: {
+    },
+    queryParams: {
+    }
+};
+var body = {
+
+};
+
+apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+        //This is where you would put a success callback
+        console.log(result);
+    }).catch( function(result){
+        //This is where you would put an error callback
+        console.log(result);
+    });
