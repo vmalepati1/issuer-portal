@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Col, Row } from '@themesberg/react-bootstrap';
 import { ActivityWidget, InsightsWidget } from '../components/Widgets';
-const AWS = require('aws-sdk');
-const fetch = require('node-fetch'); // You can use 'axios' or any other HTTP library of your choice
 
 export default function Activity() {
     const [ classesInfo, setClassesInfo ] = useState([]);

@@ -295,7 +295,7 @@ export const HolderListWidget = (props) => {
                 <HolderDetailsWidget
                   key={index}
                   nationCode="US"
-                  holderName="Hello"
+                  holderName={item.legalName}
                   quantityAndUnits={item.balance}
                   percentOwned={(item.balance / props.sharesOutstanding)}
                   holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"

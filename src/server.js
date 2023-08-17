@@ -8,6 +8,21 @@ const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS, MICR_TXT } = require('
 const { response } = require('express');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const aws = require('aws-sdk');
+
+const apigClientFactory = require('aws-api-gateway-client').default;
+const apigClient = apigClientFactory.newClient({
+    invokeUrl:'https://api.blocktransfer.com', // REQUIRED
+    accessKey: process.env.AWS_ACCESS_KEY_ID, // REQUIRED
+    secretKey: process.env.AWS_SECRET_ACCESS_KEY, // REQUIRED
+    sessionToken: '', //OPTIONAL: If you are using temporary credentials you must include the session token
+    region: 'us-east-2', // REQUIRED: The region where the API is deployed.
+    systemClockOffset: 0, // OPTIONAL: An offset value in milliseconds to apply to signing time
+    retries: 4, // OPTIONAL: Number of times to retry before failing. Uses axon-retry plugin.
+    retryCondition: (err) => { // OPTIONAL: Callback to further control if request should be retried.  Uses axon-retry plugin.
+      return err.response && err.response.status === 500;
+    }
+});
 
 app.get('/asset-class-data/:assetCode', cors(), async (req, res) => {
     try {
@@ -91,7 +106,7 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
                         let balance = parseFloat(balances.balance);
                         
                         if (balance > 0) {
-                            ledgerBalances.push({account_id: account, balance: balance});
+                            ledgerBalances.push({ account_id: account, balance: balance });
                         }
 
                         break;
@@ -101,6 +116,20 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
 
             ledgerJSON = await getNextLedgerJSON(ledgerJSON);
         }
+
+        // Fetch legal names using getPIIFromAddresses
+        const addresses = ledgerBalances.map(investor => investor.account_id);
+        const piiData = await getPIIFromAddresses(addresses);
+        const piiJSON = piiData.map(item => aws.DynamoDB.Converter.unmarshall(item));
+
+        // Merge legal names with investor balances
+        ledgerBalances.forEach(investor => {
+            const piiInfo = piiJSON.find(pii => pii.PK === investor.account_id);
+            if (piiInfo && piiInfo.legalName) {
+                investor.legalName = piiInfo.legalName;
+                investor.address = piiInfo.address;
+            }
+        });
 
         ledgerBalances.sort((a, b) => {
             if (a.balance < b.balance) {
@@ -603,42 +632,37 @@ app.use(cors());
 
 app.listen(8080, () => console.log('API is running on port 8080'));
 
-var apigClientFactory = require('aws-api-gateway-client').default;
-var apigClient = apigClientFactory.newClient({
-    invokeUrl:'https://api.blocktransfer.com', // REQUIRED
-    accessKey: process.env.AWS_ACCESS_KEY_ID, // REQUIRED
-    secretKey: process.env.AWS_SECRET_ACCESS_KEY, // REQUIRED
-    sessionToken: '', //OPTIONAL: If you are using temporary credentials you must include the session token
-    region: 'us-east-2', // REQUIRED: The region where the API is deployed.
-    systemClockOffset: 0, // OPTIONAL: An offset value in milliseconds to apply to signing time
-    retries: 4, // OPTIONAL: Number of times to retry before failing. Uses axon-retry plugin.
-    retryCondition: (err) => { // OPTIONAL: Callback to further control if request should be retried.  Uses axon-retry plugin.
-      return err.response && err.response.status === 500;
+async function getPIIFromAddresses(addresses) {
+    const commaSeparatedAddresses = addresses.join(',');
+
+    var pathParams = {
+    };
+    // Template syntax follows url-template https://www.npmjs.com/package/url-template
+    var pathTemplate = '/PII'
+    var method = 'GET';
+    var additionalParams = {
+        headers: {
+        },
+        queryParams: {
+            "PKs": commaSeparatedAddresses
+        }
+    };
+    var body = {
+    
+    };
+
+    try {
+        const result = await apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body);
+        return result.data.found.Responses.PII;
+    } catch (error) {
+        throw new Error("Request for PII data was unsuccessful");
     }
-});
+}
 
-
-var pathParams = {
-    query: 'GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7',
-};
-// Template syntax follows url-template https://www.npmjs.com/package/url-template
-var pathTemplate = '/PII/{query}'
-var method = 'GET';
-var additionalParams = {
-    headers: {
-    },
-    queryParams: {
+(async () => {
+    try {
+        const piiData = await getPIIFromAddresses(['GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7', 'GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY']);
+    } catch (error) {
+        console.error(error.message);
     }
-};
-var body = {
-
-};
-
-apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-        //This is where you would put a success callback
-        console.log(result);
-    }).catch( function(result){
-        //This is where you would put an error callback
-        console.log(result);
-    });
+})();
