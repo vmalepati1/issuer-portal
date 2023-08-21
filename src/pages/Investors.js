@@ -61,7 +61,7 @@ export default function Investors() {
                                 </Col>
 
                                 <Col>
-                                    <RegisteredTrendsWidget>
+                                    <RegisteredTrendsWidget investors={investorData}>
                                     </RegisteredTrendsWidget>
                                 </Col>
                             </Row>

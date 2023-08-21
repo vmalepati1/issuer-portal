@@ -4,7 +4,7 @@ const app = express();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
     fetch(...args));
 const toml = require('toml');
-const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS, MICR_TXT } = require('./globals');
+const { BT_ISSUERS, HORIZON_INST, MAX_SEARCH, USD_ASSETS, MICR_TXT, BT_WELL_KNOWN, BT_API_SERVER } = require('./globals');
 const { response } = require('express');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
@@ -12,7 +12,7 @@ const aws = require('aws-sdk');
 
 const apigClientFactory = require('aws-api-gateway-client').default;
 const apigClient = apigClientFactory.newClient({
-    invokeUrl:'https://api.blocktransfer.com', // REQUIRED
+    invokeUrl: BT_API_SERVER, // REQUIRED
     accessKey: process.env.AWS_ACCESS_KEY_ID, // REQUIRED
     secretKey: process.env.AWS_SECRET_ACCESS_KEY, // REQUIRED
     sessionToken: '', //OPTIONAL: If you are using temporary credentials you must include the session token
@@ -88,7 +88,7 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
         let ledger = await fetch(requestAddr);
         let ledgerJSON = await ledger.json();
         let ledgerBalances = [];
-
+        
         while (ledgerJSON._embedded.records.length > 0) {
             for (let i in ledgerJSON._embedded.records) {
                 let accounts = ledgerJSON._embedded.records[i];
@@ -127,7 +127,14 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
             const piiInfo = piiJSON.find(pii => pii.PK === investor.account_id);
             if (piiInfo && piiInfo.legalName) {
                 investor.legalName = piiInfo.legalName;
+            }
+
+            if (piiInfo && piiInfo.address) {
                 investor.address = piiInfo.address;
+            }
+
+            if (piiInfo && piiInfo.citizen) {
+                investor.citizen = piiInfo.citizen;
             }
         });
 
@@ -229,9 +236,17 @@ async function getAssetStats(assetTOML, assetCode) {
 }
 
 async function getAssetTOML(assetCode) {
-    const apiEndpoint = 'https://blocktransfer.io/assets/' + assetCode + '.toml';
+    const btStellarResponse = await fetch(BT_WELL_KNOWN + '/stellar.toml');
 
-    const apiResponse = await fetch(apiEndpoint);
+    const btStellarTxt = await btStellarResponse.text();
+
+    const btStellarTOML = toml.parse(btStellarTxt);
+
+    const asset = btStellarTOML.CURRENCIES.find((c) => c.code == assetCode);
+
+    const tomlLink = asset.attestation_of_reserve;
+
+    const apiResponse = await fetch(tomlLink);
 
     let apiResponseTxt = await apiResponse.text();
 
@@ -466,6 +481,16 @@ async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
     let totalTransfers = 0;
     let totalTrades = 0;
 
+    const piiData = await getPIIFromAddresses(allPublicKeys);
+    const piiJSON = piiData.map(item => aws.DynamoDB.Converter.unmarshall(item));
+
+    let piiMap = {};
+    for (const piiItem of piiJSON) {
+        piiMap[piiItem.PK] = piiItem.legalName;
+    }
+
+    piiMap[BT_ISSUERS] = 'BT_ISSUER';
+
     // Due to the fact that transfers are recorded on both
     // the source account and destination account ledgers,
     // transfers are typically double counted. That is why
@@ -495,13 +520,27 @@ async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
                         totalTransfers++;
                     }
 
+                    let from = payments.from;
+                    let to = payments.to;
+
+                    const fromPII = piiMap[payments.from];
+                    const toPII = piiMap[payments.to];
+
+                    if (fromPII) {
+                        from = fromPII;
+                    }
+
+                    if (toPII) {
+                        to = toPII;
+                    }
+
                     activity[payments.transaction_hash] = {
                         "type": "transfer",
                         "txHash": payments.transaction_hash,
                         "asset": queryAsset,
                         "amount": parseFloat(payments.amount),
-                        "from": payments.from,
-                        "to": payments.to,
+                        "from": from,
+                        "to": to,
                         "timestamp": payments.created_at
                     };
                 }
@@ -546,12 +585,26 @@ async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
                             totalTrades++;
                         }
 
+                        let from = trade.base_account;
+                        let to = trade.counter_account;
+    
+                        const fromPII = piiMap[trade.base_account];
+                        const toPII = piiMap[trade.counter_account];
+    
+                        if (fromPII) {
+                            from = fromPII;
+                        }
+    
+                        if (toPII) {
+                            to = toPII;
+                        }
+
                         activity[pagingToken] = {
                             type: "trade",
                             operationID: trade.id.split('-')[0],
                             asset: queryAsset,
-                            from: trade.base_account,
-                            to: trade.counter_account,
+                            from: from,
+                            to: to,
                             total_base: trade.base_amount,
                             total_usd: trade.counter_amount,
                             price_per_share: trade.price.n / trade.price.d,
@@ -575,30 +628,6 @@ async function getActivityAndStatsForAsset(queryAsset, timeframe='max') {
 
     return [transactionsList, { 'totalTransfers': totalTransfers, 'totalTrades': totalTrades }];
 }
-
-async function makeAWSRequest() {
-    try {
-        // Create a new API Gateway request object
-        const apigateway = new AWS.ApiGatewayV2({
-          apiVersion: '2018-11-29',
-          region: AWS.config.region,
-        });
-    
-        // Generate an SDK for your API Gateway
-        const sdk = apigateway.getSdk({});
-    
-        // Call the relevant API method
-        const response = await sdk.get( {
-          ApiId: 'YOUR_API_ID', // Replace with your API Gateway API ID
-          StageName: 'your-stage',
-          RouteKey: 'GET /your-resource', // Replace with your route key
-        }).promise();
-    
-        console.log('API Gateway Response:', response);
-      } catch (error) {
-        console.error('Error making GET request:', error);
-      }
-  }
 
 app.use('/login', async (req, res) => {
     res.send({
@@ -659,10 +688,10 @@ async function getPIIFromAddresses(addresses) {
     }
 }
 
-(async () => {
-    try {
-        const piiData = await getPIIFromAddresses(['GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7', 'GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY']);
-    } catch (error) {
-        console.error(error.message);
-    }
-})();
+// (async () => {
+//     try {
+//         const piiData = await getPIIFromAddresses(['GDRM3MK6KMHSYIT4E2AG2S2LWTDBJNYXE4H72C7YTTRWOWX5ZBECFWO7', 'GD2OUJ4QKAPESM2NVGREBZTLFJYMLPCGSUHZVRMTQMF5T34UODVHPRCY']);
+//     } catch (error) {
+//         console.error(error.message);
+//     }
+// })();

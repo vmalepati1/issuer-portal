@@ -193,9 +193,9 @@ export const TopRegisteredHoldersWidget = (props) => {
             <Row className="mt-1 mb-1" key={i}>
               {row.map(investor => (
                 <Col id="holder-col" col="d-flex justify-content-center align-items-center" key={investor.account_id}>
-                  <HolderWidget name="Vanguard" numShares={investor.balance}
+                  <HolderWidget name={investor.legalName} numShares={investor.balance}
                                 percent={(investor.balance / props.sharesOutstanding)} 
-                                nationCode="IN"></HolderWidget>
+                                nationCode={investor.citizen}></HolderWidget>
                 </Col>
               ))}
             </Row>
@@ -207,9 +207,9 @@ export const TopRegisteredHoldersWidget = (props) => {
                 <Row className="mt-1 mb-1">
                   {row.map(investor => (
                     <Col id="holder-col" col="d-flex justify-content-center align-items-center" key={investor.account_id}>
-                      <HolderWidget name="Vanguard" numShares={investor.balance}
+                      <HolderWidget name={investor.legalName} numShares={investor.balance}
                         percent={(investor.balance / props.sharesOutstanding)} 
-                        nationCode="IN"></HolderWidget>
+                        nationCode={investor.citizen}></HolderWidget>
                     </Col>
                   ))}
                 </Row>
@@ -294,11 +294,11 @@ export const HolderListWidget = (props) => {
               groupedItems.map((item, index) => (
                 <HolderDetailsWidget
                   key={index}
-                  nationCode="US"
-                  holderName={item.legalName}
-                  quantityAndUnits={item.balance}
-                  percentOwned={(item.balance / props.sharesOutstanding)}
-                  holderAddress="P.O. Box 982903, El Paso, TX 79998-2903"
+                  nationCode={item.citizen ? item.citizen : "US"}
+                  holderName={item.legalName || "undefined"}
+                  quantityAndUnits={item.balance || "undefined"}
+                  percentOwned={item.balance && props.sharesOutstanding ? (item.balance / props.sharesOutstanding) : "undefined"}
+                  holderAddress={item.address && item.address.street1 ? item.address.street1 : "undefined"}
                 />
               ))
             }
@@ -346,17 +346,23 @@ export const CircleChartWidget = (props) => {
 };
 
 export const RegisteredTrendsWidget = (props) => {
-  const stateData = [
-      { id: 1, label: "Wyoming", value: 60, color: "secondary", icon: null },
-      { id: 2, label: "South Carolina", value: 30, color: "tertiary", icon: null },
-      { id: 3, label: "Georgia", value: 1, color: "primary", icon: null },
-      { id: 4, label: "New Hampshire", value: 1, color: "secondary", icon: null },
-      { id: 5, label: "Connecticut", value: 1, color: "tertiary", icon: null },
-      { id: 6, label: "California", value: 1, color: "primary", icon: null },
-      { id: 7, label: "Washington", value: 1, color: "secondary", icon: null },
-      { id: 8, label: "Illinois", value: 1, color: "tertiary", icon: null },
-      { id: 9, label: "Michigan", value: 4, color: "primary", icon: null }
-  ];
+  const stateFrequencyMap = {};
+  props.investors.forEach((investor) => {
+    if (investor.address && investor.address.subdivision) {
+      const state = investor.address.subdivision;
+      stateFrequencyMap[state] = (stateFrequencyMap[state] || 0) + 1;
+    }
+  });
+
+  const totalInvestors = props.investors.length;
+
+  const stateData = Object.keys(stateFrequencyMap).map((state) => ({
+    id: state,
+    label: state,
+    value: (stateFrequencyMap[state] / totalInvestors) * 100,
+    color: "secondary",
+    icon: null,
+  }));
 
   const holderTypeData = [
     { id: 1, label: "US Individual", value: 80, color: "secondary", icon: null },
@@ -378,11 +384,11 @@ export const RegisteredTrendsWidget = (props) => {
                   data={stateData} />
           </div>
 
-          <div className="my-4">
+          {/* <div className="my-4">
             <CircleChartWidget
                   title="Holder Type"
                   data={holderTypeData} />
-          </div>
+          </div> */}
 
         </div>
       </Card.Body>
