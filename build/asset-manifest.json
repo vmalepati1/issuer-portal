@@ -1,0 +1,32 @@
+{
+  "files": {
+    "main.css": "/main/static/css/main.696877ea.chunk.css",
+    "main.js": "/main/static/js/main.9c5f968d.chunk.js",
+    "main.js.map": "/main/static/js/main.9c5f968d.chunk.js.map",
+    "runtime-main.js": "/main/static/js/runtime-main.79e94ead.js",
+    "runtime-main.js.map": "/main/static/js/runtime-main.79e94ead.js.map",
+    "static/css/2.fea3aa44.chunk.css": "/main/static/css/2.fea3aa44.chunk.css",
+    "static/js/2.d84a6eb0.chunk.js": "/main/static/js/2.d84a6eb0.chunk.js",
+    "static/js/2.d84a6eb0.chunk.js.map": "/main/static/js/2.d84a6eb0.chunk.js.map",
+    "index.html": "/main/index.html",
+    "precache-manifest.9810b5485b07c19ab7ce5ceeb22df68f.js": "/main/precache-manifest.9810b5485b07c19ab7ce5ceeb22df68f.js",
+    "service-worker.js": "/main/service-worker.js",
+    "static/css/2.fea3aa44.chunk.css.map": "/main/static/css/2.fea3aa44.chunk.css.map",
+    "static/css/main.696877ea.chunk.css.map": "/main/static/css/main.696877ea.chunk.css.map",
+    "static/js/2.d84a6eb0.chunk.js.LICENSE.txt": "/main/static/js/2.d84a6eb0.chunk.js.LICENSE.txt",
+    "static/media/bootstrap-5-logo.svg": "/main/static/media/bootstrap-5-logo.6aae84ab.svg",
+    "static/media/laravel-logo.svg": "/main/static/media/laravel-logo.32442a8e.svg",
+    "static/media/logo-192x192.png": "/main/static/media/logo-192x192.edf25cc2.png",
+    "static/media/react-hero-logo.svg": "/main/static/media/react-hero-logo.9394d800.svg",
+    "static/media/react-logo-transparent.svg": "/main/static/media/react-logo-transparent.f7d45c01.svg",
+    "static/media/react-logo.svg": "/main/static/media/react-logo.b779e4fd.svg",
+    "static/media/themesberg.svg": "/main/static/media/themesberg.105e5059.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.79e94ead.js",
+    "static/css/2.fea3aa44.chunk.css",
+    "static/js/2.d84a6eb0.chunk.js",
+    "static/css/main.696877ea.chunk.css",
+    "static/js/main.9c5f968d.chunk.js"
+  ]
+}
