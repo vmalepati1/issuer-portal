@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/main/static/css/main.696877ea.chunk.css",
+    "main.css": "/main/static/css/main.6e0d40b2.chunk.css",
     "main.js": "/main/static/js/main.9c5f968d.chunk.js",
     "main.js.map": "/main/static/js/main.9c5f968d.chunk.js.map",
     "runtime-main.js": "/main/static/js/runtime-main.79e94ead.js",
@@ -9,10 +9,10 @@
     "static/js/2.d84a6eb0.chunk.js": "/main/static/js/2.d84a6eb0.chunk.js",
     "static/js/2.d84a6eb0.chunk.js.map": "/main/static/js/2.d84a6eb0.chunk.js.map",
     "index.html": "/main/index.html",
-    "precache-manifest.9810b5485b07c19ab7ce5ceeb22df68f.js": "/main/precache-manifest.9810b5485b07c19ab7ce5ceeb22df68f.js",
+    "precache-manifest.55129b44e21cd16bcf3a7b4465e1aedb.js": "/main/precache-manifest.55129b44e21cd16bcf3a7b4465e1aedb.js",
     "service-worker.js": "/main/service-worker.js",
     "static/css/2.fea3aa44.chunk.css.map": "/main/static/css/2.fea3aa44.chunk.css.map",
-    "static/css/main.696877ea.chunk.css.map": "/main/static/css/main.696877ea.chunk.css.map",
+    "static/css/main.6e0d40b2.chunk.css.map": "/main/static/css/main.6e0d40b2.chunk.css.map",
     "static/js/2.d84a6eb0.chunk.js.LICENSE.txt": "/main/static/js/2.d84a6eb0.chunk.js.LICENSE.txt",
     "static/media/bootstrap-5-logo.svg": "/main/static/media/bootstrap-5-logo.6aae84ab.svg",
     "static/media/laravel-logo.svg": "/main/static/media/laravel-logo.32442a8e.svg",
@@ -26,7 +26,7 @@
     "static/js/runtime-main.79e94ead.js",
     "static/css/2.fea3aa44.chunk.css",
     "static/js/2.d84a6eb0.chunk.js",
-    "static/css/main.696877ea.chunk.css",
+    "static/css/main.6e0d40b2.chunk.css",
     "static/js/main.9c5f968d.chunk.js"
   ]
 }
