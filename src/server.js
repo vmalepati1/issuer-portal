@@ -665,7 +665,7 @@ app.use(cors());
 app.listen(8080, () => console.log('API is running on port 8080'));
 
 async function getPIIFromAddresses(addresses) {
-    console.log(addresses);
+    // console.log(addresses);
     const commaSeparatedAddresses = addresses.join(',');
 
     var pathParams = {

@@ -26,7 +26,7 @@ const MICR_TXT = MICR_DIR + "/master-identity-account-mapping.txt";
 const BT_API_SERVER = "https://api.blocktransfer.com";
 const BT_WELL_KNOWN = "https://blocktransfer.com/.well-known";
 
-const BT_ISSUER_PORTAL_SERVER = "http://ec2-3-21-127-28.us-east-2.compute.amazonaws.com";
+const BT_ISSUER_PORTAL_SERVER = "https://test-203277609.us-east-2.elb.amazonaws.com";
 
 module.exports = { BT_ISSUERS, USD_ASSETS, 
                    HORIZON_INST, MAX_SEARCH, 
