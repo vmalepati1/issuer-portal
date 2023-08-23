@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Col, Row } from '@themesberg/react-bootstrap';
 import { ActivityWidget, InsightsWidget } from '../components/Widgets';
+import { BT_ISSUER_PORTAL_SERVER } from '../globals';
 
 export default function Activity() {
     const [ classesInfo, setClassesInfo ] = useState([]);
@@ -10,7 +11,7 @@ export default function Activity() {
     const assetCode = 'DEMO';
     
     useEffect(() => {
-        fetch(`http://localhost:8080/asset-class-data/${assetCode}`)
+        fetch(BT_ISSUER_PORTAL_SERVER + `/asset-class-data/${assetCode}`)
             .then(results => results.json())
             .then(data => {
                 // console.log(data);
@@ -23,7 +24,7 @@ export default function Activity() {
 
     useEffect(() => {
         const promises = classesInfo.map(assetClass => {
-            return fetch(`http://localhost:8080/get-activity/${assetClass.code}`)
+            return fetch(BT_ISSUER_PORTAL_SERVER + `/get-activity/${assetClass.code}`)
                 .then(results => {
                     if (!results.ok) {
                         throw new Error(results.status);

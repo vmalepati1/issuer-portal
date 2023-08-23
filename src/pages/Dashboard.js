@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { Col, Row, Button, Dropdown, ButtonGroup } from '@themesberg/react-bootstrap';
 import { CapitalBreakdownWidget, TopRegisteredHoldersWidget } from "../components/Widgets";
-import { STREET_NAME_ACCOUNTS } from "../globals";
+import { STREET_NAME_ACCOUNTS, BT_ISSUER_PORTAL_SERVER } from "../globals";
 // import { DcentCLIConnector } from 'dcent-cli-connector';
 
 export default function Dashboard() {
@@ -12,7 +12,7 @@ export default function Dashboard() {
     const assetCode = 'DEMO';
 
     useEffect(() => {
-        fetch(`http://localhost:8080/asset-class-data/${assetCode}`)
+        fetch(BT_ISSUER_PORTAL_SERVER + `/asset-class-data/${assetCode}`)
             .then(results => results.json())
             .then(data => {
                 // console.log(data);
@@ -25,7 +25,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         const promises = classesInfo.map(assetClass => {
-            return fetch(`http://localhost:8080/get-top-investors/${assetClass.code}`)
+            return fetch(BT_ISSUER_PORTAL_SERVER + `/get-top-investors/${assetClass.code}`)
                 .then(results => {
                     if (!results.ok) {
                         throw new Error(results.status);

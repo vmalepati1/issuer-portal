@@ -13,6 +13,7 @@ import { Table } from '@themesberg/react-bootstrap';
 import collapse from "bootstrap/js/src/collapse";
 import useGroupedPagination from "./GroupedPagination";
 import { chunkArray } from "../utils";
+import { BT_ISSUER_PORTAL_SERVER } from '../globals';
 
 const CapitalBreakdownStat = (props) => {
   let link;
@@ -492,7 +493,7 @@ export const InsightsWidget = (props) => {
 
     setIsLoading(true);
 
-    return fetch(`http://localhost:8080/get-activity/${props.assetCode}?timeframe=${timeframe}`)
+    return fetch(BT_ISSUER_PORTAL_SERVER + `/get-activity/${props.assetCode}?timeframe=${timeframe}`)
       .then(results => {
           if (!results.ok) {
               throw new Error(results.status);
