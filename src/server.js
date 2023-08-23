@@ -386,26 +386,29 @@ async function requestAssetAccounts(queryAsset) {
     return responseJSON;
 }
 
-async function debugGetAllCurrPublicKeysForAsset(queryAsset) {
-    let currPublicKeys = [];
-
-    let ledger = await requestAssetAccounts(queryAsset);
-
-    let records = ledger._embedded.records;
-
-    while (records.length > 0) {
-        for (let i in records) {
-            let accounts = records[i];
-
-            currPublicKeys.push(accounts.id);
+async function debugGetAllCurrPublicKeysForAsset() {
+    var pathParams = {
+    };
+    // Template syntax follows url-template https://www.npmjs.com/package/url-template
+    var pathTemplate = '/accounts/public-keys/all'
+    var method = 'GET';
+    var additionalParams = {
+        headers: {
+        },
+        queryParams: {
         }
+    };
+    var body = {
+    
+    };
 
-        ledger = await getNextLedgerJSON(ledger);
-
-        records = ledger._embedded.records;
+    try {
+        const result = await apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body);
+        return result.data;
+    } catch (error) {
+        console.log(error);
+        throw new Error("Request for accounts data was unsuccessful");
     }
-
-    return currPublicKeys;
 }
 
 async function getPaymentsLedger(address) {
@@ -662,6 +665,7 @@ app.use(cors());
 app.listen(8080, () => console.log('API is running on port 8080'));
 
 async function getPIIFromAddresses(addresses) {
+    console.log(addresses);
     const commaSeparatedAddresses = addresses.join(',');
 
     var pathParams = {
@@ -682,8 +686,10 @@ async function getPIIFromAddresses(addresses) {
 
     try {
         const result = await apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body);
-        return result.data.found.Responses.PII;
+
+        return result.data;
     } catch (error) {
+        console.log(error);
         throw new Error("Request for PII data was unsuccessful");
     }
 }
