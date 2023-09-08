@@ -117,6 +117,8 @@ app.get('/get-top-investors/:assetCode', cors(), async (req, res) => {
             ledgerJSON = await getNextLedgerJSON(ledgerJSON);
         }
 
+        // ledgerBalances = ledgerBalances.slice(0, 50);
+
         // Fetch legal names using getPIIFromAddresses
         const addresses = ledgerBalances.map(investor => investor.account_id);
         const piiData = await getPIIFromAddresses(addresses);
@@ -257,6 +259,14 @@ async function getAssetTOML(assetCode) {
 
     apiResponseTxt = apiResponseTxt.replace("ir.email", "ir-email");
     apiResponseTxt = apiResponseTxt.replace("ir.phone", "ir-phone");
+
+    apiResponseTxt = apiResponseTxt.replace("blue_sky.states", "blue_sky-states");
+    apiResponseTxt = apiResponseTxt.replace("blue_sky.exchange", "blue_sky-exchange");
+
+    apiResponseTxt = apiResponseTxt.replace("jurisdiction.country", "jurisdiction-country");
+    apiResponseTxt = apiResponseTxt.replace("jurisdiction.subdivision", "jurisdiction-subdivision");
+
+    apiResponseTxt = apiResponseTxt.replace("reg.d.506b.offering", "reg-d-506b-offering");
 
     const assetTOML = toml.parse(apiResponseTxt);
 
